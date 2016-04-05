@@ -46,7 +46,17 @@ app.use(function(req, res, next){
     next();
 });
 app.use(express.static(path.join(__dirname, 'public')));
-
+//增加res.locals.message：
+app.use(function(req, res, next) {
+    res.locals.user = req.session.user;
+    var err = req.session.error;
+    delete req.session.error;
+    res.locals.message = '';
+    if (err) {
+        res.locals.message = '<div class="alert alert-warning">' + err + '</div>';
+    }
+    next();
+});
 
 
 // app.use('/', routes);
