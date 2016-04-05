@@ -20,7 +20,18 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+//-----------server----------------------
+var io = require('socket.io').listen(server);
+io.on('connection', function(socket) {  
+    //接收并处理客户端发送的foo事件  
+    socket.on('foo', function(data) {  
+        //将消息输出到控制台  
+        socket.emit('message',data);
+    })  
+});  
 
+
+//-------------------------------------------
 /**
  * Listen on provided port, on all network interfaces.
  */

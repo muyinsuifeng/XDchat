@@ -63,7 +63,8 @@ app.use(function(req, res, next) {
 // app.use('/users', users);
 app.use('/', routes);
 app.use('/users', users);
-app.use('/login', routes);
+app.use('/userlogin', routes);
+app.use('/custom_servicelogin', routes);
 app.use('/logout', routes);
 app.use('/home', routes);
 
@@ -98,6 +99,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;

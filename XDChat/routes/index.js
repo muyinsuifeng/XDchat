@@ -69,27 +69,53 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
-    res.render('index', { title: 'Express' });
+    res.render('index', { title: 'XiaoDaiChat' });
 });
 
-router.route('/login')
+router.route('/userlogin')
 .get(function(req, res) {
     if (req.session.user) {
         res.redirect('/home');
     }
-    res.render('login', { title: '用户登录' });
+    res.render('userlogin', { title: '用户登录' });
 })
 .post(function(req, res) {
     var user = {
         username: 'admin',
         password: '123456'
     }
+    // req.assert('username', "用户名不能为空").notEmpty();
+    // req.assert('password', "密码不能为空").notEmpty();
     if (req.body.username === user.username && req.body.password === user.password) {
         req.session.user = user;
         res.redirect('/home');
     } else {
         req.session.error='用户名或密码不正确';
-        res.redirect('/login');
+        res.redirect('/userlogin');
+    }
+});
+
+
+router.route('/custom_servicelogin')
+.get(function(req, res) {
+    if (req.session.user) {
+        res.redirect('/home');
+    }
+    res.render('custom_servicelogin', { title: '客服登录' });
+})
+.post(function(req, res) {
+    var user = {
+        username: '1',
+        password: '1'
+    }
+    // req.assert('username', "用户名不能为空").notEmpty();
+    // req.assert('password', "密码不能为空").notEmpty();
+    if (req.body.username === user.username && req.body.password === user.password) {
+        req.session.user = user;
+        res.redirect('/home');
+    } else {
+        req.session.error='客户号或密码不正确';
+        res.redirect('/custom_servicelogin');
     }
 });
 
