@@ -65,6 +65,7 @@
 // };
 //--------------------------
 var express = require('express');
+var userdatabase = require('../database/userdatabase');
 var router = express.Router();
 
 /* GET home page. */
@@ -94,6 +95,42 @@ router.route('/userlogin')
         res.redirect('/userlogin');
     }
 });
+
+
+
+
+router.route('/register')
+.get(function(req, res) {
+    if (req.session.user) {
+        res.redirect('/home');
+    }
+    res.render('register', { title: '用户注册' });
+})
+.post(function(req, res) {
+    var name = req.body.username;
+  	var pwd = req.body.password;
+  	var newUser = new userdatabase({
+    	username: name,
+    	password: pwd
+  	});
+  	newUser.isexist(name,function(name,callback){
+  		if(!callback)｛
+  			newUser.save(function (err, user) {
+    		//相关操作，写入session
+    		res.send(user);
+  			｝
+  		else{
+  			req.alert('客户号或密码不正确');
+        	res.redirect('/register');
+  		} 
+  	});
+
+
+
+ 	
+  });
+});
+
 
 
 router.route('/custom_servicelogin')

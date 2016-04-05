@@ -67,6 +67,7 @@ app.use('/userlogin', routes);
 app.use('/custom_servicelogin', routes);
 app.use('/logout', routes);
 app.use('/home', routes);
+app.use('/regisetr',routes);
 
 
 // catch 404 and forward to error handler
