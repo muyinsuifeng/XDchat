@@ -114,7 +114,7 @@ router.route('/userlogin')
   		else{
   			if(user.password == pwd){
   				//console.log("3");
-  				//req.session.user = user;
+  				req.session.user = user;
         		res.redirect('/home');
   			}
   			else{//console.log("4");
@@ -157,7 +157,7 @@ router.route('/register')
     		//相关操作，写入session
     	
     		req.session.error='注册成功';
-    		//res.send(user);
+    		res.send(user);
     		res.redirect('/register');
 
   			});
@@ -210,7 +210,7 @@ router.route('/custom_servicelogin')
   		else{
   			if(user.password == pwd){
   				//console.log("3");
-  				//req.session.user = user;
+  				req.session.user = user;
         		res.redirect('/home');
   			}
   			else{//console.log("4");
@@ -223,20 +223,20 @@ router.route('/custom_servicelogin')
 });
 
 router.get('/logout', function(req, res) {
-    //req.session.user = null;
+    req.session.user = null;
     res.redirect('/');
 });
 
 router.get('/home', function(req, res) {
-    //authentication(req, res);
-    res.render('home', { title: 'Home' });
+    authentication(req, res);
+    res.render('home', { title: req.session.user.name });
 });
 
-// function authentication(req, res) {
-//     if (!req.session.user) {
-//         req.session.error='请先登录';
-//         return res.redirect('/login');
-//     }
-// }
+function authentication(req, res) {
+    if (!req.session.user) {
+        req.session.error='请先登录';
+        return res.redirect('/');
+    }
+}
 
 module.exports = router;
