@@ -110,25 +110,27 @@ router.route('/register')
     var name = req.body.username;
   	var pwd = req.body.password;
   	var newUser = new userdatabase({
-    	username: name,
+    	name: name,
     	password: pwd
   	});
-  	newUser.isexist(name,function(name,callback){
-  		if(!callback)｛
-  			newUser.save(function (err, user) {
+  	newUser.isexist(name,function(err,user){
+
+  		if(user){
+  			req.session.error='该用户已存在';
+        	return res.redirect('/register');
+  		}
+  		else{newUser.save(function (err, user) {
     		//相关操作，写入session
     		res.send(user);
-  			｝
-  		else{
-  			req.alert('客户号或密码不正确');
-        	res.redirect('/register');
-  		} 
+  			});
+  		}
   	});
 
 
 
- 	
-  });
+
+
+  	
 });
 
 
