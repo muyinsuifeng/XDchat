@@ -73,27 +73,60 @@ router.get('/', function(req, res) {
     res.render('index', { title: 'XiaoDaiChat' });
 });
 
+
+
+
+
 router.route('/userlogin')
 .get(function(req, res) {
-    if (req.session.user) {
-        res.redirect('/home');
-    }
+    // if (req.session.user) {
+    //     res.redirect('/home');
+    // }
     res.render('userlogin', { title: '用户登录' });
 })
 .post(function(req, res) {
-    var user = {
-        username: 'admin',
-        password: '123456'
-    }
+    // var user = {
+    //     username: 'admin',
+    //     password: '123456'
+    // }
     // req.assert('username', "用户名不能为空").notEmpty();
     // req.assert('password', "密码不能为空").notEmpty();
-    if (req.body.username === user.username && req.body.password === user.password) {
-        req.session.user = user;
-        res.redirect('/home');
-    } else {
-        req.session.error='用户名或密码不正确';
-        res.redirect('/userlogin');
-    }
+    // if (req.body.username === user.username && req.body.password === user.password) {
+    //     req.session.user = user;
+    //     res.redirect('/home');
+    // } else {
+    //     req.session.error='用户名或密码不正确';
+    //     res.redirect('/userlogin');
+    // }
+    var name = req.body.username;
+  	var pwd = req.body.password;
+  	var newUser = new userdatabase({
+  		type: "user",
+    	name: name,
+    	password: pwd
+  	});
+  	newUser.isexist(name,function(err,user){
+  		//console.log("1");
+  		if(!user){//console.log("2");
+  			req.session.error='用户不存在';
+        	res.redirect('/userlogin');
+  		}
+  		else{
+  			if(user.password == pwd){
+  				//console.log("3");
+  				//req.session.user = user;
+        		res.redirect('/home');
+  			}
+  			else{//console.log("4");
+  				req.session.error='密码错误';
+        		res.redirect('/userlogin');
+  			}
+  		}
+  	});
+
+
+
+
 });
 
 
@@ -101,15 +134,16 @@ router.route('/userlogin')
 
 router.route('/register')
 .get(function(req, res) {
-    if (req.session.user) {
-        res.redirect('/home');
-    }
+    // if (req.session.user) {
+    //     res.redirect('/home');
+    // }
     res.render('register', { title: '用户注册' });
 })
 .post(function(req, res) {
     var name = req.body.username;
   	var pwd = req.body.password;
   	var newUser = new userdatabase({
+  		type: "user",
     	name: name,
     	password: pwd
   	});
@@ -117,11 +151,15 @@ router.route('/register')
 
   		if(user){
   			req.session.error='该用户已存在';
-        	return res.redirect('/register');
+        	res.redirect('/register');
   		}
   		else{newUser.save(function (err, user) {
     		//相关操作，写入session
-    		res.send(user);
+    	
+    		req.session.error='注册成功';
+    		//res.send(user);
+    		res.redirect('/register');
+
   			});
   		}
   	});
@@ -137,42 +175,68 @@ router.route('/register')
 
 router.route('/custom_servicelogin')
 .get(function(req, res) {
-    if (req.session.user) {
-        res.redirect('/home');
-    }
+    // if (req.session.user) {
+    //     res.redirect('/home');
+    // }
     res.render('custom_servicelogin', { title: '客服登录' });
 })
-.post(function(req, res) {
-    var user = {
-        username: '1',
-        password: '1'
-    }
-    // req.assert('username', "用户名不能为空").notEmpty();
-    // req.assert('password', "密码不能为空").notEmpty();
-    if (req.body.username === user.username && req.body.password === user.password) {
-        req.session.user = user;
-        res.redirect('/home');
-    } else {
-        req.session.error='客户号或密码不正确';
-        res.redirect('/custom_servicelogin');
-    }
+ .post(function(req, res) {
+//     var user = {
+//         username: '1',
+//         password: '1'
+//     }
+//     // req.assert('username', "用户名不能为空").notEmpty();
+//     // req.assert('password', "密码不能为空").notEmpty();
+//     if (req.body.username === user.username && req.body.password === user.password) {
+//         //req.session.user = user;
+//         res.redirect('/home');
+//     } else {
+//         req.session.error='客户号或密码不正确';
+//         res.redirect('/custom_servicelogin');
+//     }
+	var name = req.body.username;
+  	var pwd = req.body.password;
+  	var newUser = new userdatabase({
+  		type: "service",
+    	name: name,
+    	password: pwd
+  	});
+  	newUser.isexist(name,function(err,user){
+  		//console.log("1");
+  		if(!user){//console.log("2");
+  			req.session.error='客服不存在';
+        	res.redirect('/custom_servicelogin');
+  		}
+  		else{
+  			if(user.password == pwd){
+  				//console.log("3");
+  				//req.session.user = user;
+        		res.redirect('/home');
+  			}
+  			else{//console.log("4");
+  				req.session.error='密码错误';
+        		res.redirect('/custom_servicelogin');
+  			}
+  		}
+  	});
+
 });
 
 router.get('/logout', function(req, res) {
-    req.session.user = null;
+    //req.session.user = null;
     res.redirect('/');
 });
 
 router.get('/home', function(req, res) {
-    authentication(req, res);
+    //authentication(req, res);
     res.render('home', { title: 'Home' });
 });
 
-function authentication(req, res) {
-    if (!req.session.user) {
-        req.session.error='请先登录';
-        return res.redirect('/login');
-    }
-}
+// function authentication(req, res) {
+//     if (!req.session.user) {
+//         req.session.error='请先登录';
+//         return res.redirect('/login');
+//     }
+// }
 
 module.exports = router;
