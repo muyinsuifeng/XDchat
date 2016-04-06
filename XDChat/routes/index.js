@@ -229,7 +229,7 @@ router.get('/logout', function(req, res) {
 
 router.get('/home', function(req, res) {
     authentication(req, res);
-    res.render('home', { title: req.session.user.name });
+    res.render('home', { title: req.session.user });
 });
 
 function authentication(req, res) {
