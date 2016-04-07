@@ -6,46 +6,18 @@
 
 <script src="/socket.io/socket.io.js"></script>
 </head>
-<body>
+<body onload="link()">
 	
 <h1>Welcome <%= title.name %>, 欢迎登录！！</h1>
-<h1 id="title" style="display: none;"><%= title.name %></h1>
- <a class="btn" href="/logout">退出</a>
+<h1 id="name" style="display: none;"><%= title.name %></h1>
+<h1 id="type" style="display: none;"><%= title.type %></h1>
+<h1 id="id" style="display: none;"><%= title._id %></h1>
+ <p id ="roominfo"></p>
+ <p id ="roominfo2"></p>
  <textarea id ='messagebox' rows="20" cols="150"></textarea>
  <input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
- <button id = 'sendBtn'>anniu</button>
-<script type="text/javascript">  
-    var socket=io.connect(),//与服务器进行连接  
-    	name = document.getElementById('title').innerHTML;
-    	button=document.getElementById('sendBtn');  
-    	input=document.getElementById('message');
-    	
-    	messagebox=document.getElementById('messagebox');
-    socket.on('message', function(data) {  
-        //将消息输出到控制台 
-        var time = new Date();
-        	hours =time.getHours();
-        	minutes = time.getMinutes();
-        	seconds = time.getSeconds();
-        	minutes = changetime(minutes);
-        	hours = changetime(hours);
-        	seconds = changetime(seconds);
-        var output =hours+":"+minutes+":"+seconds+":"+"\n";
-        	output +=name+":"+data+"\n";
-        messagebox.value+=output;
-        
-    })  
-    button.onclick=function(){  
-        socket.emit('foo', input.value);
-        input.value="";//发送一个名为foo的事件，并且传递一个字符串数据‘hello’  
-    }  
-    function changetime(data){
-    	if(data < 10){
-    		return "0"+data;
-    	}
-    	return data;
-    }
-    
-</script> 
+ <button id = 'sendBtn' onclick="sendMeg()">发送</button>
+ <a class="btn" href="/logout">退出</a>
+<script src="./javascripts/client.js"></script> 
 </body>
 </html>

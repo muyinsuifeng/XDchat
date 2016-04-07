@@ -20,16 +20,26 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var connectuser = {};
+var connectnumber = 0;
 //-----------server----------------------
 var io = require('socket.io').listen(server);
-io.on('connection', function(socket) {  
-    //接收并处理客户端发送的foo事件  
-    socket.on('foo', function(data) {  
-        //将消息输出到控制台  
-        socket.emit('message',data);
-    })  
-});  
+io.on('connection', function(socket) {
 
+    //接收并处理客户端发送的foo事件  
+    socket.on('link',function(link){
+        socket.name = link.id;
+        if(!connectuser.hasOwnProperty(link.id)){
+          connectuser[link.id] = link.from;
+          connectnumber++;
+        }
+        io.emit('link', {connectuser:connectuser,connectnumber:connectnumber,userinfo:link});
+        console.log(link.from+'加入了聊天室');
+    });
+    socket.on('Meg', function(data) {  
+        io.emit('Meg',{from:data.from,context:data.context});
+    }); 
+});  
 
 //-------------------------------------------
 /**
