@@ -19,6 +19,7 @@ var socket=io.connect(),//与服务器进行连接
         var output = hours+":"+minutes+":"+seconds+":"+"\n";
         	output += data.from+":"+data.context+"\n";
         messagebox.value += output;
+        scrollTop();
     });
     socket.on('link', function(data) {  
         //将消息输出到控制台 
@@ -37,6 +38,7 @@ var socket=io.connect(),//与服务器进行连接
         var output = "      "+hours+":"+minutes+":"+seconds+":"+"    ";
             output += data.userinfo.from+"加入聊天室\n";
         messagebox.value += output;
+        scrollTop();
     });   
     socket.on('logout', function(data) {  
         //将消息输出到控制台 
@@ -55,6 +57,7 @@ var socket=io.connect(),//与服务器进行连接
         var output = "      "+hours+":"+minutes+":"+seconds+":"+"    ";
             output += data.userinfo.name+"退出了聊天室\n";
         messagebox.value += output;
+        scrollTop();
     });   
     function link(){
     	socket.emit('link', {
@@ -71,11 +74,21 @@ var socket=io.connect(),//与服务器进行连接
         });
     }
     function sendMeg(){  
-        socket.emit('Meg', {
-            from : name,
-            context : input.value
-        });
-        input.value="";//发送一个名为foo的事件，并且传递一个字符串数据‘hello’  
+        if(input.value == ""){
+            window.alert("输入不能为空！！");
+        }
+        else {
+            socket.emit('Meg', {
+                from : name,
+                context : input.value
+            });
+            input.value="";//发送一个名为foo的事件，并且传递一个字符串数据‘hello’  
+            
+        }
+
+
+
+        
     }  
     function changetime(data){
     	if(data < 10){
@@ -83,14 +96,21 @@ var socket=io.connect(),//与服务器进行连接
     	}
     	return data;
     }
-    // document.getElementById("messagebox").onkeydown = function(e) {
-    //     e = e || event;
-    //     if (e.keyCode === 13) {
-    //         sendMeg();
-    //     }
-    // };
 
-   // window.location.href = window.location.href;
+    document.getElementById("message").onkeydown = function(e) {
+        e = e || event;
+        console.log(e.keyCode);
+        if (e.keyCode === 13) {
+            sendMeg();
+            
+        }
+    };
+
    function reflash(){
-    return "刷新将退出账号，你确定要退出？"
+        return "刷新将退出账号，你确定要退出？"
+   }
+
+
+   function scrollTop(){
+        document.getElementById("messagebox").scrollTop = document.getElementById("messagebox").scrollHeight;
    }

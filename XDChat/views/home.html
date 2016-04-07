@@ -7,16 +7,22 @@
 <script src="/socket.io/socket.io.js"></script>
 </head>
 <body onload="link()" onbeforeunload="return reflash()" onunload="logout()">
+
 <h1>Welcome <%= title.name %>, 欢迎登录！！</h1>
 <h1 id="name" style="display: none;"><%= title.name %></h1>
 <h1 id="type" style="display: none;"><%= title.type %></h1>
 <h1 id="id" style="display: none;"><%= title._id %></h1>
  <p id ="roominfo"></p>
  <p id ="roominfo2"></p>
- <textarea id ='messagebox' rows="20" cols="150"></textarea>
- <input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
- <button id = 'sendBtn' onclick="sendMeg()">发送</button>
- <a class="btn" href="/logout" onclick="logout()">退出</a>
+
+<textarea id ='messagebox' rows="20" cols="150" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea>
+
+ <div>
+ 	<input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
+ 	<button type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+ 	<a class="btn" href="/logout" onclick="logout()">退出</a>
+ </div>
+ 
 <script src="./javascripts/client.js"></script> 
 </body>
 </html>
