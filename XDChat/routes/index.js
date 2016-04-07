@@ -229,12 +229,14 @@ router.get('/logout', function(req, res) {
 
 router.get('/home', function(req, res) {
     authentication(req, res);
-    res.render('home', { title: req.session.user });
+    var user =req.session.user ;
+    req.session.user = null;
+    res.render('home', { title: user });
+    
 });
 
 function authentication(req, res) {
     if (!req.session.user) {
-        req.session.error='请先登录';
         return res.redirect('/');
     }
 }

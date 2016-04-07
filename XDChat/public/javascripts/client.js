@@ -19,14 +19,15 @@ var socket=io.connect(),//与服务器进行连接
         var output = hours+":"+minutes+":"+seconds+":"+"\n";
         	output += data.from+":"+data.context+"\n";
         messagebox.value += output;
-    }) ;
+    });
     socket.on('link', function(data) {  
         //将消息输出到控制台 
         document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
         document.getElementById('roominfo2').innerHTML = "当前在线:";
         for(var i in data.connectuser)
-             document.getElementById('roominfo2').innerHTML +=  data.connectuser[i]+" ";
-        var time = new Date();
+            document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+        
+            var time = new Date();
             hours = time.getHours();
             minutes = time.getMinutes();
             seconds = time.getSeconds();
@@ -36,13 +37,38 @@ var socket=io.connect(),//与服务器进行连接
         var output = "      "+hours+":"+minutes+":"+seconds+":"+"    ";
             output += data.userinfo.from+"加入聊天室\n";
         messagebox.value += output;
-    })   
+    });   
+    socket.on('logout', function(data) {  
+        //将消息输出到控制台 
+        document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
+        document.getElementById('roominfo2').innerHTML = "当前在线:";
+        for(var i in data.connectuser)
+            document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+        
+            var time = new Date();
+            hours = time.getHours();
+            minutes = time.getMinutes();
+            seconds = time.getSeconds();
+            minutes = changetime(minutes);
+            hours = changetime(hours);
+            seconds = changetime(seconds);
+        var output = "      "+hours+":"+minutes+":"+seconds+":"+"    ";
+            output += data.userinfo.name+"退出了聊天室\n";
+        messagebox.value += output;
+    });   
     function link(){
     	socket.emit('link', {
             id:id,
     		type:type,
     		from:name,
     	});
+    }
+    function logout(){
+        socket.emit('logout', {
+            id:id,
+            type:type,
+            from:name,
+        });
     }
     function sendMeg(){  
         socket.emit('Meg', {
@@ -57,3 +83,14 @@ var socket=io.connect(),//与服务器进行连接
     	}
     	return data;
     }
+    // document.getElementById("messagebox").onkeydown = function(e) {
+    //     e = e || event;
+    //     if (e.keyCode === 13) {
+    //         sendMeg();
+    //     }
+    // };
+
+   // window.location.href = window.location.href;
+   function reflash(){
+    return "刷新将退出账号，你确定要退出？"
+   }
