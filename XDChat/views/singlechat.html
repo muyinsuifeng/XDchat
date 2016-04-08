@@ -6,24 +6,24 @@
 
 <script src="/socket.io/socket.io.js"></script>
 </head>
-<body onload="link()" onbeforeunload="return reflash()" onunload="logout()">
+<body onload = "singlechatinit()">
 
-<h1>Welcome <%= title.name %>, 欢迎登录！！</h1>
+<!-- <h1>Welcome to <%= title %></h1> --><!-- 
 <h1 id="name" style="display: none;"><%= title.name %></h1>
 <h1 id="type" style="display: none;"><%= title.type %></h1>
 <h1 id="id" style="display: none;"><%= title._id %></h1>
  <p id ="roominfo"></p>
  <div id ="roominfo2"></div>
- <div id ="roominfo3"></div>
+ <div id ="roominfo3"></div> -->
 
 <textarea id ='messagebox' rows="20" cols="150" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea>
 
  <div>
  	<input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
  	<button type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
- 	<a class="btn" href="/logout" onclick="logout()">退出</a>
+ 	<button  id = 'logout' onclick="singlechatexit()">退出</button>
  </div>
  
-<script src="./javascripts/client.js"></script> 
+<script src="./javascripts/singlechat.js"></script> 
 </body>
 </html>

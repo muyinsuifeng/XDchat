@@ -25,8 +25,16 @@ var socket=io.connect(),//与服务器进行连接
         //将消息输出到控制台 
         document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
         document.getElementById('roominfo2').innerHTML = "当前在线:";
-        for(var i in data.connectuser)
-            document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+        document.getElementById('roominfo3').innerHTML = "";
+        for(var i in data.connectuser){
+            if(data.connectuser[i].type === "service"){
+                document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+            }
+            else{
+                document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+            }
+        }
+          
         
             var time = new Date();
             hours = time.getHours();
@@ -44,9 +52,15 @@ var socket=io.connect(),//与服务器进行连接
         //将消息输出到控制台 
         document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
         document.getElementById('roominfo2').innerHTML = "当前在线:";
-        for(var i in data.connectuser)
-            document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
-        
+        document.getElementById('roominfo3').innerHTML = "";
+        for(var i in data.connectuser){
+            if(data.connectuser[i].type === "service"){
+                document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+            }
+            else{
+                document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+            }
+        }
             var time = new Date();
             hours = time.getHours();
             minutes = time.getMinutes();
@@ -59,6 +73,7 @@ var socket=io.connect(),//与服务器进行连接
         messagebox.value += output;
         scrollTop();
     });   
+
     function link(){
     	socket.emit('link', {
             id:id,
@@ -82,8 +97,7 @@ var socket=io.connect(),//与服务器进行连接
                 from : name,
                 context : input.value
             });
-            input.value="";//发送一个名为foo的事件，并且传递一个字符串数据‘hello’  
-            
+            input.value="";
         }
 
 
@@ -114,3 +128,51 @@ var socket=io.connect(),//与服务器进行连接
    function scrollTop(){
         document.getElementById("messagebox").scrollTop = document.getElementById("messagebox").scrollHeight;
    }
+
+
+
+//singlechat跳转
+
+	function addText(obj){
+   		var to = obj.innerText;
+   		to = to.split("(")[0];
+   		 socket.emit('singlechat', {
+                from : name,
+                id : id,
+                type : type,
+                to : to,
+            });
+	} 
+	socket.on('singlechat',function(data){
+		document.getElementById('roominfo2').innerHTML = "当前在线:";
+        document.getElementById('roominfo3').innerHTML = "";
+        for(var i in data.connectuser){
+            if(data.connectuser[i].type === "service"){
+            	if(data.connectuser[i].iswork === "not working")
+                	document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+            	else 
+            		document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") ";        	
+            }
+            else{
+                document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+            }
+        }
+        if(data.name === name||data.to === name){
+        	window.open("singlechat",name+"/singlechat");
+        }
+	});
+	socket.on('exit',function(data){
+		document.getElementById('roominfo2').innerHTML = "当前在线:";
+        document.getElementById('roominfo3').innerHTML = "";
+        for(var i in data.connectuser){
+            if(data.connectuser[i].type === "service"){
+            	if(data.connectuser[i].iswork === "not working")
+                	document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+            	else 
+            		document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") ";        	
+            }
+            else{
+                document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
+            }
+        }
+	});

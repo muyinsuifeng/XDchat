@@ -235,10 +235,21 @@ router.get('/home', function(req, res) {
     
 });
 
+router.get('/singlechat', function(req, res) {
+    res.render('singlechat', { title: "singleservice" });
+    
+});
+
+ 
+
+
 function authentication(req, res) {
     if (!req.session.user) {
         return res.redirect('/');
     }
 }
+
+
+
 
 module.exports = router;

@@ -22,15 +22,15 @@ app.set('port', port);
 var server = http.createServer(app);
 var connectuser = {};
 var connectnumber = 0;
+var singlechat = {};
 //-----------server----------------------
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
-
-    //接收并处理客户端发送的foo事件  
     socket.on('link',function(link){
         socket.name = link.id;
         if(!connectuser.hasOwnProperty(link.id)){
-          connectuser[link.id] = {from:link.from,type:link.type};
+
+          connectuser[link.id] = {from:link.from,type:link.type,iswork:"not working"};
           connectnumber++;
         }
         io.emit('link', {connectuser:connectuser,connectnumber:connectnumber,userinfo:link});
@@ -41,20 +41,66 @@ io.on('connection', function(socket) {
     }); 
     socket.on('logout', function(){
     //将退出的用户从在线列表中删除
-    if(connectuser.hasOwnProperty(socket.name)) {
-      //退出用户的信息
-      var obj = {id:socket.name,name:connectuser[socket.name].from};
+      if(connectuser.hasOwnProperty(socket.name)) {
+        //退出用户的信息
+        var obj = {id:socket.name,name:connectuser[socket.name].from};
       
-      //删除
-      delete connectuser[socket.name];
-      //在线人数-1
-      connectnumber--;
+        //删除
+        delete connectuser[socket.name];
+        //在线人数-1
+        connectnumber--;
       
-      //向所有客户端广播用户退出
-      io.emit('logout', {connectuser:connectuser,connectnumber:connectnumber,userinfo:obj});
-      console.log(obj.name+'退出了聊天室');
-    }
-  });
+        //向所有客户端广播用户退出
+        io.emit('logout', {connectuser:connectuser,connectnumber:connectnumber,userinfo:obj});
+        console.log(obj.name+'退出了聊天室');
+      }
+    });
+    socket.on('singlechat',function(data){
+        var id = data.id;
+            name  = data.from;
+            type = data.type;
+            to = data.to;
+        for(var i in connectuser){
+            if(connectuser[i].from == to){
+              connectuser[i].iswork = "working";
+            }
+        }
+        singlechat[0] = name;
+        singlechat[1] = to; 
+        // singlechat.push({
+        //     from:name,
+        //     to:to
+        // })
+        io.emit('singlechat', {connectuser:connectuser,name:name,to:to,singlechat:singlechat});  
+        console.log(name+'请求'+to+'客服服务');
+
+    });
+    socket.on('singlechatinit',function(){
+      io.emit('singlechatinit',{
+        name:singlechat[0],
+        to:singlechat[1]
+      })
+    })
+    socket.on('singlechatMeg',function(data){
+        var name  = data.from;
+            context = data.context;
+            to = data.to;
+        io.emit('singlechatMeg', {name:name,to:to,context:context});
+        // console.log(context);
+    });
+    socket.on('singlechatexit',function(data){
+      var name = data.from;
+      var to = data.to;
+      for(var i in connectuser){
+            if(connectuser[i].from == to&&connectuser[i].type === "service"){
+              connectuser[i].iswork = "not working";
+            }
+        }
+      io.emit('exit', {connectuser:connectuser,name:name,to:to});
+      io.emit('singlechatexit',{name:name,to:to});
+      console.log(to+'客服服务结束');
+    });
+  
   
 
 });  

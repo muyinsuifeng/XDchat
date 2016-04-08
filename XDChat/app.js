@@ -68,6 +68,9 @@ app.use('/custom_servicelogin', routes);
 app.use('/logout', routes);
 app.use('/home', routes);
 app.use('/regisetr',routes);
+app.use('/singlechat',routes);
+// app.use('/singlechatxd(service)',routes);
+// app.use('/singlechatgee(service)',routes);
 
 
 // catch 404 and forward to error handler
