@@ -28,13 +28,15 @@ var socket=io.connect(),//与服务器进行连接
         document.getElementById('roominfo3').innerHTML = "";
         for(var i in data.connectuser){
             if(data.connectuser[i].type === "service"){
-                document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+                if(data.connectuser[i].iswork === "not working")
+                    document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+                else 
+                    document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") ";           
             }
             else{
                 document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
             }
         }
-          
         
             var time = new Date();
             hours = time.getHours();
@@ -55,7 +57,10 @@ var socket=io.connect(),//与服务器进行连接
         document.getElementById('roominfo3').innerHTML = "";
         for(var i in data.connectuser){
             if(data.connectuser[i].type === "service"){
-                document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+                if(data.connectuser[i].iswork === "not working")
+                    document.getElementById('roominfo2').innerHTML += "<button onclick='addText(this)'>" +data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") </button>";
+                else 
+                    document.getElementById('roominfo2').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+"-"+data.connectuser[i].iswork+") ";           
             }
             else{
                 document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
@@ -158,7 +163,10 @@ var socket=io.connect(),//与服务器进行连接
             }
         }
         if(data.name === name||data.to === name){
-        	window.open("singlechat",name+"/singlechat");
+            if(data.name === name)
+        	   window.open("singlechat",name+"/singlechat/"+data.to);
+            else 
+               window.open("singlechat",name+"/singlechat/"+data.name);
         }
 	});
 	socket.on('exit',function(data){
