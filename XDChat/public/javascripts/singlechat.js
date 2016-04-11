@@ -30,6 +30,8 @@ socket.on('singlechatexit',function(data){
 	}
 });
 
+
+
 function changetime(data){
     	if(data < 10){
     		return "0"+data;
@@ -70,3 +72,66 @@ document.getElementById("message").onkeydown = function(e) {
 function singlechatexit(){
 	socket.emit('singlechatexit',{from:singlechat_from,to:singlechat_to});
 }
+//----------------video----
+var flag = 0;
+
+
+function Reqvideo(){ 
+    // var x = document.createElement("video");
+    // x.setAttribute("id","video");
+    // x.setAttribute("width", "320");
+    // x.setAttribute("height", "240");
+    // // x.setAttribute("controls", "controls");
+    // x.setAttribute("autoplay","autoplay");
+    // document.body.appendChild(x);
+    var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        
+    if(flag == 0){
+        getUserMedia.call(navigator, {
+            video: true,
+            audio: true
+        }, function(localMediaStream) {
+            var video = document.getElementById('video');
+            video.src = window.URL.createObjectURL(localMediaStream);
+            socket.emit('video',{
+                localMediaStream:localMediaStream,from:singlechat_from,to:singlechat_to
+            })
+            video.onloadedmetadata = function(e) {
+                console.log("Label: " + localMediaStream.label);
+                console.log("AudioTracks" , localMediaStream.getAudioTracks());
+                console.log("VideoTracks" , localMediaStream.getVideoTracks());
+            };
+        }, function(e) {
+            console.log('Rejected!', e);
+        });
+        flag = 1;
+    }
+    else{
+        var video = document.getElementById('video');
+        video.pause();
+        video.src=null;
+        flag = 0;
+    }
+    
+ }
+socket.on('video',function(data){
+    // if(data.to == singlechat_from){
+    //     getUserMedia.call(navigator, {
+    //         video: true,
+    //         audio: true
+    //     }, function(data.localMediaStream) {
+    //         var video = document.getElementById('chatvideo');
+    //         chatvideo.src = window.URL.createObjectURL(data.localMediaStream);
+    //         chatvideo.onloadedmetadata = function(e) {
+    //             console.log("Label: " + localMediaStream.label);
+    //             console.log("AudioTracks" , localMediaStream.getAudioTracks());
+    //             console.log("VideoTracks" , localMediaStream.getVideoTracks());
+    //         };
+    //     }, function(e) {
+    //         console.log('Rejected!', e);
+    //     });
+    // }
+    
+});
+
+//----------------------------------------

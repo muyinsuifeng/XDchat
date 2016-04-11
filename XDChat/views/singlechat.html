@@ -21,9 +21,12 @@
  <div>
  	<input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
  	<button type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+ 	<button  id = 'Reqvideo' onclick="Reqvideo()">视频</button>
  	<button  id = 'logout' onclick="singlechatexit()">退出</button>
  </div>
- 
-<script src="./javascripts/singlechat.js"></script> 
+ <video id="video" controls autoplay width="300" height="240" ></video>
+ <video id="chatvideo" controls autoplay width="300" height="240" ></video>
 </body>
+<script src="./javascripts/singlechat.js"></script>
+<script src="./javascripts/video.js"></script>
 </html>

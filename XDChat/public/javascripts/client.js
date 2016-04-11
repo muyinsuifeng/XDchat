@@ -184,3 +184,5 @@ var socket=io.connect(),//与服务器进行连接
             }
         }
 	});
+
+    
