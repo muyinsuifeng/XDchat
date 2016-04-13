@@ -15,17 +15,73 @@ var http = require('http');
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
+var server = http.createServer(app);
+// var WebSocketServer = require('ws').Server,
+// wss = new WebSocketServer({server: server});
 /**
  * Create HTTP server.
  */
+//-----------------------------------
+
+
+// // 有socket连入
+
+
 //-----------server服务器----------------------
 
-var server = http.createServer(app);
 var connectuser = {};
 var connectnumber = 0;
 var singlechat = {};
+var wsc = {};
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
+
+  // socket.on('videolink',function(data){
+
+  //    console.log('1');
+  //     if(!wsc.hasOwnProperty(data.to))
+  //       wsc[data.to] = socket.id; 
+  //     for(var i in wsc)
+  //       console.log(wsc[i]);
+  //   });
+
+    // 记下对方socket在数组中的下标，因为这个测试程序只允许2个socket
+    // 所以第一个连入的socket存入0，第二个连入的就是存入1
+    // otherIndex就反着来，第一个socket的otherIndex下标为1，第二个socket的otherIndex下标为0
+    
+    // 转发收到的消息
+    // socket.onmessage =  function(message) {
+    //   console.log('2');
+    //     var json = JSON.parse(message);
+    //     console.log('received : ', json);
+    //     if(json.event === "_ice_candidate"||json.event === "_offer"||json.event === "_answer"){
+    //       wsc[to].send(message, function (error) {
+    //         if (error) {
+    //             console.log('Send message error : ', error);
+    //         }
+    //       });
+    //     }
+    // };
+
+    socket.on('message', function(message) {
+        console.log((new Date()) + ' Received Message, broadcasting: ' + message);
+        socket.broadcast.emit('message', message);
+    });
+
+    // When the user hangs up
+    // broadcast bye signal to all users in the room
+    socket.on('disconnect', function() {
+        // close user connection
+        console.log((new Date()) + " Peer disconnected.");
+        socket.broadcast.emit('user disconnected');
+    });
+    // socket.on('_offer',function(data){
+    //   console.log(data);
+    // });
+
+
+
+
     socket.on('link',function(link){
         socket.name = link.id;
         if(!connectuser.hasOwnProperty(link.id)){
@@ -88,7 +144,7 @@ io.on('connection', function(socket) {
             context = data.context;
             to = data.to;
         io.emit('singlechatMeg', {name:name,to:to,context:context});
-        // console.log(context);
+         //console.log(context);
     });
     socket.on('singlechatexit',function(data){
       var name = data.from;
@@ -108,102 +164,27 @@ io.on('connection', function(socket) {
       io.emit('singlechatexit',{name:name,to:to});
       console.log(name+" "+to+'客服服务结束');
     });
-    socket.on('video',function(data){
-      var name = data.name;
-      var to = data.to;
-      console.log(data.localMediaStream);
-      io.emit('video',{
-        name:name,to:to,localMediaStream:data.localMediaStream
-      });
-    });
+    // socket.on('video',function(data){
+    //   var name = data.name;
+    //   var to = data.to;
+    //   console.log(data.localMediaStream);
+    //   io.emit('video',{
+    //     name:name,to:to,localMediaStream:data.localMediaStream
+    //   });
+    //  });
+    // socket.on('message', function(message) {
+    //     var json = JSON.parse(message);
+    //     console.log('received (' + desc + '): ', json);
+    //     io.emit('message', function (error) {
+    //         if (error) {
+    //             console.log('Send message error (' + desc + '): ', error);
+    //         }
+    //     });
+    // });
   
   
 
 });  
-
-
-//-------------------------------------------
-
-//使用Google的stun服务器
-// var iceServer = {
-//     "iceServers": [{
-//         "url": "stun:stun.l.google.com:19302"
-//     }]
-// };
-// //兼容浏览器的getUserMedia写法
-// var getUserMedia = (navigator.getUserMedia ||
-//                     navigator.webkitGetUserMedia || 
-//                     navigator.mozGetUserMedia || 
-//                     navigator.msGetUserMedia);
-// //兼容浏览器的PeerConnection写法
-// var PeerConnection = (window.PeerConnection ||
-//                     window.webkitPeerConnection00 || 
-//                     window.webkitRTCPeerConnection || 
-//                     window.mozRTCPeerConnection);
-// //与后台服务器的WebSocket连接
-// var socket = __createWebSocketChannel();
-// //创建PeerConnection实例
-// var pc = new PeerConnection(iceServer);
-// //发送ICE候选到其他客户端
-// pc.onicecandidate = function(event){
-//     socket.send(JSON.stringify({
-//         "event": "__ice_candidate",
-//         "data": {
-//             "candidate": event.candidate
-//         }
-//     }));
-// };
-// //如果检测到媒体流连接到本地，将其绑定到一个video标签上输出
-// pc.onaddstream = function(event){
-//     someVideoElement.src = URL.createObjectURL(event.stream);
-// };
-// //获取本地的媒体流，并绑定到一个video标签上输出，并且发送这个媒体流给其他客户端
-// getUserMedia.call(navigator, {
-//     "audio": true,
-//     "video": true
-// }, function(stream){
-//     //发送offer和answer的函数，发送本地session描述
-//     var sendOfferFn = function(desc){
-//             pc.setLocalDescription(desc);
-//             socket.send(JSON.stringify({ 
-//                 "event": "__offer",
-//                 "data": {
-//                     "sdp": desc
-//                 }
-//             }));
-//         },
-//         sendAnswerFn = function(desc){
-//             pc.setLocalDescription(desc);
-//             socket.send(JSON.stringify({ 
-//                 "event": "__answer",
-//                 "data": {
-//                     "sdp": desc
-//                 }
-//             }));
-//         };
-//     //绑定本地媒体流到video标签用于输出
-//     myselfVideoElement.src = URL.createObjectURL(stream);
-//     //向PeerConnection中加入需要发送的流
-//     pc.addStream(stream);
-//     //如果是发送方则发送一个offer信令，否则发送一个answer信令
-//     if(isCaller){
-//         pc.createOffer(sendOfferFn);
-//     } else {
-//         pc.createAnswer(sendAnswerFn);
-//     }
-// }, function(error){
-//     //处理媒体流创建失败错误
-// });
-// //处理到来的信令
-// socket.onmessage = function(event){
-//     var json = JSON.parse(event.data);
-//     //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
-//     if( json.event === "__ice_candidate" ){
-//         pc.addIceCandidate(new RTCIceCandidate(json.data.candidate));
-//     } else {
-//          pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
-//     }
-// };
 //---------------------------------------------------
 /**
  * Listen on provided port, on all network interfaces.

@@ -1,12 +1,9 @@
-var socket=io.connect();//与服务器进行连接 
+var socket = io.connect();
 var singlechat_from = window.name.split("/")[0];
 var singlechat_to = window.name.split("/")[2];
 var input = document.getElementById('message');
 var messagebox = document.getElementById('messagebox');
-
-// socket.on('singlechatinit',function(data){
-	
-// });
+//---------------------chat--------------------------------------
 socket.on('singlechatMeg',function(data){
 	
 	if(data.name === singlechat_from ||data.name === singlechat_to ||data.to === singlechat_from ||data.to === singlechat_to ){
@@ -72,66 +69,176 @@ document.getElementById("message").onkeydown = function(e) {
 function singlechatexit(){
 	socket.emit('singlechatexit',{from:singlechat_from,to:singlechat_to});
 }
-//----------------video----
-var flag = 0;
 
 
-function Reqvideo(){ 
-    // var x = document.createElement("video");
-    // x.setAttribute("id","video");
-    // x.setAttribute("width", "320");
-    // x.setAttribute("height", "240");
-    // // x.setAttribute("controls", "controls");
-    // x.setAttribute("autoplay","autoplay");
-    // document.body.appendChild(x);
-    var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-        
-    if(flag == 0){
-        getUserMedia.call(navigator, {
-            video: true,
-            audio: true
-        }, function(localMediaStream) {
-            var video = document.getElementById('video');
-            video.src = window.URL.createObjectURL(localMediaStream);
-            socket.emit('video',{
-                localMediaStream:localMediaStream,from:singlechat_from,to:singlechat_to
-            })
-            video.onloadedmetadata = function(e) {
-                console.log("Label: " + localMediaStream.label);
-                console.log("AudioTracks" , localMediaStream.getAudioTracks());
-                console.log("VideoTracks" , localMediaStream.getVideoTracks());
-            };
-        }, function(e) {
-            console.log('Rejected!', e);
-        });
-        flag = 1;
+
+//-----------vedio----------
+var sourcevid = document.getElementById('webrtc-sourcevid');
+  var remotevid = document.getElementById('webrtc-remotevid');
+  var localStream = null;
+  var peerConn = null;
+  var started = false;
+  var channelReady = false;
+  var mediaConstraints = {'mandatory': {
+                          'OfferToReceiveAudio':true, 
+                          'OfferToReceiveVideo':true }};
+  var isVideoMuted = false;
+
+  // get the local video up
+  function startVideo() {
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia || navigator.msGetUserMedia;
+      window.URL = window.URL || window.webkitURL;
+
+      navigator.getUserMedia({video: true, audio: true}, successCallback, errorCallback);
+      function successCallback(stream) {
+          localStream = stream;
+          if (sourcevid.mozSrcObject) {
+            sourcevid.mozSrcObject = stream;
+            sourcevid.play();
+          } else {
+            try {
+              sourcevid.src = window.URL.createObjectURL(stream);
+              sourcevid.play();
+            } catch(e) {
+              console.log("Error setting video src: ", e);
+            }
+          }
+      }
+      function errorCallback(error) {
+          console.error('An error occurred: [CODE ' + error.code + ']');
+          return;
+      }
+  }
+
+  // stop local video
+  function stopVideo() {
+    if (sourcevid.mozSrcObject) {
+      sourcevid.mozSrcObject.stop();
+      sourcevid.src = null;
+    } else {
+      sourcevid.src = "";
+      localStream.stop();
     }
-    else{
-        var video = document.getElementById('video');
-        video.pause();
-        video.src=null;
-        flag = 0;
-    }
-    
- }
-socket.on('video',function(data){
-    // if(data.to == singlechat_from){
-    //     getUserMedia.call(navigator, {
-    //         video: true,
-    //         audio: true
-    //     }, function(data.localMediaStream) {
-    //         var video = document.getElementById('chatvideo');
-    //         chatvideo.src = window.URL.createObjectURL(data.localMediaStream);
-    //         chatvideo.onloadedmetadata = function(e) {
-    //             console.log("Label: " + localMediaStream.label);
-    //             console.log("AudioTracks" , localMediaStream.getAudioTracks());
-    //             console.log("VideoTracks" , localMediaStream.getVideoTracks());
-    //         };
-    //     }, function(e) {
-    //         console.log('Rejected!', e);
-    //     });
-    // }
-    
-});
+  }
 
-//----------------------------------------
+  // send SDP via socket connection
+  function setLocalAndSendMessage(sessionDescription) {
+    peerConn.setLocalDescription(sessionDescription);
+    console.log("Sending: SDP");
+    console.log(sessionDescription);
+    socket.json.send(sessionDescription);
+  }
+
+  function createOfferFailed() {
+    console.log("Create Answer failed");
+  }
+
+  // start the connection upon user request
+  function connect() {
+    if (!started && localStream && channelReady) {
+      createPeerConnection();
+      started = true;
+      peerConn.createOffer(setLocalAndSendMessage, createOfferFailed, mediaConstraints);
+    } else {
+      alert("Local stream not running yet - try again.");
+    }
+  }
+
+  // stop the connection upon user request
+  function hangUp() {
+    console.log("Hang up.");    
+    socket.json.send({type: "bye"});
+    stop();
+  }
+
+  function stop() {
+    peerConn.close();
+    peerConn = null;
+    started = false;    
+  }
+
+  // socket: channel connected
+  socket.on('connect', onChannelOpened)
+        .on('message', onMessage);
+
+  function onChannelOpened(evt) {
+    console.log('Channel opened.');
+    channelReady = true;
+  }
+
+  function createAnswerFailed() {
+    console.log("Create Answer failed");
+  }
+  // socket: accept connection request
+  function onMessage(evt) {
+    if (evt.type === 'offer') {
+      console.log("Received offer...")
+      if (!started) {
+        createPeerConnection();
+        started = true;
+      }
+      console.log('Creating remote session description...' );
+      peerConn.setRemoteDescription(new RTCSessionDescription(evt));
+      console.log('Sending answer...');
+      peerConn.createAnswer(setLocalAndSendMessage, createAnswerFailed, mediaConstraints);
+
+    } else if (evt.type === 'answer' && started) {
+      console.log('Received answer...');
+      console.log('Setting remote session description...' );
+      peerConn.setRemoteDescription(new RTCSessionDescription(evt));
+
+    } else if (evt.type === 'candidate' && started) {
+      console.log('Received ICE candidate...');
+      var candidate = new RTCIceCandidate({sdpMLineIndex:evt.sdpMLineIndex, sdpMid:evt.sdpMid, candidate:evt.candidate});
+      console.log(candidate);
+      peerConn.addIceCandidate(candidate);
+
+    } else if (evt.type === 'bye' && started) {
+      console.log("Received bye");
+      stop();
+    }
+  }
+  function createPeerConnection() {
+    console.log("Creating peer connection");
+    RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;
+    var pc_config = {"iceServers":[{
+        "url": "stun:stun.l.google.com:19302"
+    }
+    ]};
+    try {
+      peerConn = new RTCPeerConnection(pc_config);
+    } catch (e) {
+      console.log("Failed to create PeerConnection, exception: " + e.message);
+    }
+    // send any ice candidates to the other peer
+    peerConn.onicecandidate = function (evt) {
+      if (event.candidate) {
+        console.log('Sending ICE candidate...');
+        console.log(evt.candidate);
+        socket.json.send({type: "candidate",
+                          sdpMLineIndex: evt.candidate.sdpMLineIndex,
+                          sdpMid: evt.candidate.sdpMid,
+                          candidate: evt.candidate.candidate});
+      } else {
+        console.log("End of candidates.");
+      }
+    };
+    console.log('Adding local stream...');
+    peerConn.addStream(localStream);
+
+    peerConn.addEventListener("addstream", onRemoteStreamAdded, false);
+    peerConn.addEventListener("removestream", onRemoteStreamRemoved, false)
+
+    // when remote adds a stream, hand it on to the local video element
+    function onRemoteStreamAdded(event) {
+      console.log("Added remote stream");
+      remotevid.src = window.URL.createObjectURL(event.stream);
+    }
+
+    // when remote removes a stream, remove it from the local video element
+    function onRemoteStreamRemoved(event) {
+      console.log("Remove remote stream");
+      remotevid.src = "";
+    }
+  }
+  //----------------------------------
