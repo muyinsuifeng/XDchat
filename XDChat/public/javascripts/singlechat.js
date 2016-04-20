@@ -53,11 +53,6 @@ function scrollTop(){
         document.getElementById("messagebox").scrollTop = document.getElementById("messagebox").scrollHeight;
    }
 
-// function singlechatinit(){
-// 	socket.emit('singlechatinit', {from:singlechat_from
-//         });
-// }
-
 document.getElementById("message").onkeydown = function(e) {
     e = e || event;
     console.log(e.keyCode);
@@ -73,8 +68,8 @@ function singlechatexit(){
 
 
 //-----------vedio----------
-var sourcevid = document.getElementById('webrtc-sourcevid');
-  var remotevid = document.getElementById('webrtc-remotevid');
+  var sourcevid = document.getElementById('video');
+  var remotevid = document.getElementById('remotevideo');
   var localStream = null;
   var peerConn = null;
   var started = false;
@@ -127,7 +122,7 @@ var sourcevid = document.getElementById('webrtc-sourcevid');
     console.log("Sending: SDP");
     console.log(sessionDescription);
     socket.json.send(sessionDescription);
-  }
+  }//-------type = 'offer'--------------
 
   function createOfferFailed() {
     console.log("Create Answer failed");
@@ -149,7 +144,7 @@ var sourcevid = document.getElementById('webrtc-sourcevid');
     console.log("Hang up.");    
     socket.json.send({type: "bye"});
     stop();
-  }
+  }//-------type = 'bye'----------------
 
   function stop() {
     peerConn.close();
@@ -179,7 +174,7 @@ var sourcevid = document.getElementById('webrtc-sourcevid');
       }
       console.log('Creating remote session description...' );
       peerConn.setRemoteDescription(new RTCSessionDescription(evt));
-      console.log('Sending answer...');
+      console.log('Sending answer...');//---------type = 'answer'------------
       peerConn.createAnswer(setLocalAndSendMessage, createAnswerFailed, mediaConstraints);
 
     } else if (evt.type === 'answer' && started) {
@@ -201,9 +196,14 @@ var sourcevid = document.getElementById('webrtc-sourcevid');
   function createPeerConnection() {
     console.log("Creating peer connection");
     RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;
-    var pc_config = {"iceServers":[{
-        "url": "stun:stun.l.google.com:19302"
-    }
+    var pc_config = {
+        "iceServers":[{
+                "url": "stun:stun.l.google.com:19302"
+            }, {
+                "url": "turn:numb.viagenie.ca",
+                "username": "webrtc@live.com",
+                "credential": "muazkh"
+            }
     ]};
     try {
       peerConn = new RTCPeerConnection(pc_config);
@@ -215,7 +215,7 @@ var sourcevid = document.getElementById('webrtc-sourcevid');
       if (event.candidate) {
         console.log('Sending ICE candidate...');
         console.log(evt.candidate);
-        socket.json.send({type: "candidate",
+        socket.json.send({type: "candidate",//-------type = 'candidate'--------------
                           sdpMLineIndex: evt.candidate.sdpMLineIndex,
                           sdpMid: evt.candidate.sdpMid,
                           candidate: evt.candidate.candidate});

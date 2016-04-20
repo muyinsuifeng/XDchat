@@ -35,33 +35,13 @@ var singlechat = {};
 var wsc = {};
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
+    socket.on('Channel_opened',function(data){
+      console.log(data.s);
+    })
 
-  // socket.on('videolink',function(data){
 
-  //    console.log('1');
-  //     if(!wsc.hasOwnProperty(data.to))
-  //       wsc[data.to] = socket.id; 
-  //     for(var i in wsc)
-  //       console.log(wsc[i]);
-  //   });
 
-    // 记下对方socket在数组中的下标，因为这个测试程序只允许2个socket
-    // 所以第一个连入的socket存入0，第二个连入的就是存入1
-    // otherIndex就反着来，第一个socket的otherIndex下标为1，第二个socket的otherIndex下标为0
-    
-    // 转发收到的消息
-    // socket.onmessage =  function(message) {
-    //   console.log('2');
-    //     var json = JSON.parse(message);
-    //     console.log('received : ', json);
-    //     if(json.event === "_ice_candidate"||json.event === "_offer"||json.event === "_answer"){
-    //       wsc[to].send(message, function (error) {
-    //         if (error) {
-    //             console.log('Send message error : ', error);
-    //         }
-    //       });
-    //     }
-    // };
+
 
     socket.on('message', function(message) {
         console.log((new Date()) + ' Received Message, broadcasting: ' + message);
@@ -89,10 +69,12 @@ io.on('connection', function(socket) {
           connectuser[link.id] = {from:link.from,type:link.type,iswork:"not working"};
           connectnumber++;
         }
+        console.log("1"+link.type+"1");
         io.emit('link', {connectuser:connectuser,connectnumber:connectnumber,userinfo:link});
         console.log(link.from+'加入了聊天室');
     });
     socket.on('Meg', function(data) {  
+        console.log(data.context);
         io.emit('Meg',{from:data.from,context:data.context});
     }); 
     socket.on('logout', function(){
