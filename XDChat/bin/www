@@ -24,9 +24,11 @@ var server = http.createServer(app);
 //-----------------------------------
 
 
-// // 有socket连入
 
 
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 //-----------server服务器----------------------
 
 var connectuser = {};
@@ -35,9 +37,10 @@ var singlechat = {};
 var wsc = {};
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
-    socket.on('Channel_opened',function(data){
-      console.log(data.s);
-    })
+// // 有socket连入
+    // socket.on('Channel_opened',function(data){
+    //   console.log(data.s);
+    // })
 
 
 
@@ -172,9 +175,6 @@ io.on('connection', function(socket) {
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.

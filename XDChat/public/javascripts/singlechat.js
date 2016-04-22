@@ -1,3 +1,4 @@
+// var socket = io.connect('http://192.168.3.110');
 var socket = io.connect();
 var singlechat_from = window.name.split("/")[0];
 var singlechat_to = window.name.split("/")[2];
@@ -81,7 +82,7 @@ function singlechatexit(){
 
   // get the local video up
   function startVideo() {
-      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia || navigator.msGetUserMedia;
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mediaDevices.getUserMedia || navigator.msGetUserMedia;
       window.URL = window.URL || window.webkitURL;
 
       navigator.getUserMedia({video: true, audio: true}, successCallback, errorCallback);
@@ -130,6 +131,9 @@ function singlechatexit(){
 
   // start the connection upon user request
   function connect() {
+    console.log(started);
+    console.log(localStream);
+    console.log(channelReady);
     if (!started && localStream && channelReady) {
       createPeerConnection();
       started = true;
@@ -195,7 +199,7 @@ function singlechatexit(){
   }
   function createPeerConnection() {
     console.log("Creating peer connection");
-    RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;
+    // RTCPeerConnection = webkitRTCPeerConnection || mozRTCPeerConnection;
     var pc_config = {
         "iceServers":[{
                 "url": "stun:stun.l.google.com:19302"
@@ -206,13 +210,14 @@ function singlechatexit(){
             }
     ]};
     try {
+      console.log(RTCPeerConnection);
       peerConn = new RTCPeerConnection(pc_config);
     } catch (e) {
       console.log("Failed to create PeerConnection, exception: " + e.message);
     }
     // send any ice candidates to the other peer
     peerConn.onicecandidate = function (evt) {
-      if (event.candidate) {
+      if (evt.candidate) {
         console.log('Sending ICE candidate...');
         console.log(evt.candidate);
         socket.json.send({type: "candidate",//-------type = 'candidate'--------------

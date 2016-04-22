@@ -107,7 +107,7 @@ router.route('/userlogin')
   	});
   	newUser.isexist(name,function(err,user){
   		//console.log("1");
-  		if(!user){//console.log("2");
+  		if(!user || user.type !== "user"){//console.log("2");
   			req.session.error='用户不存在';
         	res.redirect('/userlogin');
   		}
@@ -203,7 +203,7 @@ router.route('/custom_servicelogin')
   	});
   	newUser.isexist(name,function(err,user){
   		//console.log("1");
-  		if(!user){//console.log("2");
+  		if(!user || user.type !== "service"){//console.log("2");
   			req.session.error='客服不存在';
         	res.redirect('/custom_servicelogin');
   		}
