@@ -34,21 +34,53 @@ server.on('listening', onListening);
 var connectuser = {};
 var connectnumber = 0;
 var singlechat = {};
+var room = [];
+var temporary_room = [];
+var flag = 0;
 var wsc = {};
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
-// // 有socket连入
-    // socket.on('Channel_opened',function(data){
-    //   console.log(data.s);
-    // })
+    console.log( "a socket connected" );
 
-
-
-
-
+    socket.on("singlechat_room",function(){
+      for(var i in room){
+          console.log("singlechat_room_before:"+room[i][0].id+":"+room[i][1].id);
+        }
+      if(flag == 0){
+          console.log("flag == 0");
+          temporary_room.push(socket);
+          flag++;
+        }
+        else {
+          console.log("flag != 0");
+          temporary_room.push(socket);
+          room.push(temporary_room);
+          temporary_room = [];
+          flag = 0;
+         }
+        for(var i in room){
+          console.log("singlechat_room_after:"+room[i][0].id+":"+room[i][1].id);
+        }
+      });
     socket.on('message', function(message) {
+
+
+
+
         console.log((new Date()) + ' Received Message, broadcasting: ' + message);
-        socket.broadcast.emit('message', message);
+        for(var i in room){
+          console.log('message:'+room[i][0].id+":"+room[i][1].id);
+          console.log('message:'+socket.id);
+        }
+        for(var i in room){
+          if(socket.id === room[i][0].id ||socket.id === room[i][1].id ){
+            console.log("room_send_Meg");
+            room[i][0].emit('message', message);
+            room[i][1].emit('message', message);
+          }
+        }
+        
+        //socket.broadcast.emit('message', message);
     });
 
     // When the user hangs up
@@ -56,11 +88,21 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         // close user connection
         console.log((new Date()) + " Peer disconnected.");
-        socket.broadcast.emit('user disconnected');
+        for(var i in room){
+          console.log('disconnect_before:'+room[i][0].id+":"+room[i][1].id);
+        }
+        for(var i in room){
+          if(socket.id === room[i][0].id ||socket.id === room[i][1].id ){
+            room[i][0].emit('user disconnected');
+            room[i][1].emit('user disconnected');
+            room.splice(i, 1);
+          }
+        }
+        for(var i in room){
+          console.log('disconnect_after:'+room[i][0].id+":"+room[i][1].id);
+        }
+        //socket.broadcast.emit('user disconnected');
     });
-    // socket.on('_offer',function(data){
-    //   console.log(data);
-    // });
 
 
 
@@ -97,6 +139,7 @@ io.on('connection', function(socket) {
       }
     });
     socket.on('singlechat',function(data){
+        
         var id = data.id;
             name  = data.from;
             type = data.type;
@@ -109,6 +152,7 @@ io.on('connection', function(socket) {
         if(!singlechat.hasOwnProperty(name)){
           singlechat[name] = to;
           singlechat[to] = name;
+
         }
         
         io.emit('singlechat', {connectuser:connectuser,name:name,to:to,singlechat:singlechat});  

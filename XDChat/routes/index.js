@@ -123,10 +123,6 @@ router.route('/userlogin')
   			}
   		}
   	});
-
-
-
-
 });
 
 

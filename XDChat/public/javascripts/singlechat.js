@@ -75,13 +75,18 @@ function singlechatexit(){
   var peerConn = null;
   var started = false;
   var channelReady = false;
-  var mediaConstraints = {'mandatory': {
-                          'OfferToReceiveAudio':true, 
-                          'OfferToReceiveVideo':true }};
+  // var mediaConstraints = {'mandatory': {
+  //                         'OfferToReceiveAudio':true, 
+  //                         'OfferToReceiveVideo':true }};
   var isVideoMuted = false;
 
   // get the local video up
   function startVideo() {
+      socket.emit("singlechat_room",{
+
+      });
+
+
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mediaDevices.getUserMedia || navigator.msGetUserMedia;
       window.URL = window.URL || window.webkitURL;
 
@@ -137,7 +142,7 @@ function singlechatexit(){
     if (!started && localStream && channelReady) {
       createPeerConnection();
       started = true;
-      peerConn.createOffer(setLocalAndSendMessage, createOfferFailed, mediaConstraints);
+      peerConn.createOffer(setLocalAndSendMessage, createOfferFailed);//, mediaConstraints);
     } else {
       alert("Local stream not running yet - try again.");
     }
@@ -146,7 +151,10 @@ function singlechatexit(){
   // stop the connection upon user request
   function hangUp() {
     console.log("Hang up.");    
-    socket.json.send({type: "bye"});
+    socket.json.send({
+                      // from: singlechat_from,
+                      // to: singlechat_to,
+                      type: "bye"});
     stop();
   }//-------type = 'bye'----------------
 
@@ -170,8 +178,10 @@ function singlechatexit(){
   }
   // socket: accept connection request
   function onMessage(evt) {
-    if (evt.type === 'offer') {
-      console.log("Received offer...")
+      //console.log(evt.from+":"+evt.to);
+     //if(evt.from == undefined || evt.from === singlechat_from || evt.to === singlechat_to){
+      if (evt.type === 'offer') {
+        console.log("Received offer...")
       if (!started) {
         createPeerConnection();
         started = true;
@@ -179,23 +189,25 @@ function singlechatexit(){
       console.log('Creating remote session description...' );
       peerConn.setRemoteDescription(new RTCSessionDescription(evt));
       console.log('Sending answer...');//---------type = 'answer'------------
-      peerConn.createAnswer(setLocalAndSendMessage, createAnswerFailed, mediaConstraints);
+      peerConn.createAnswer(setLocalAndSendMessage, createAnswerFailed);//, mediaConstraints);
 
-    } else if (evt.type === 'answer' && started) {
-      console.log('Received answer...');
-      console.log('Setting remote session description...' );
-      peerConn.setRemoteDescription(new RTCSessionDescription(evt));
+      } else if (evt.type === 'answer' && started) {
+        console.log('Received answer...');
+        console.log('Setting remote session description...' );
+        peerConn.setRemoteDescription(new RTCSessionDescription(evt));
 
-    } else if (evt.type === 'candidate' && started) {
-      console.log('Received ICE candidate...');
-      var candidate = new RTCIceCandidate({sdpMLineIndex:evt.sdpMLineIndex, sdpMid:evt.sdpMid, candidate:evt.candidate});
-      console.log(candidate);
-      peerConn.addIceCandidate(candidate);
+      } else if (evt.type === 'candidate' && started) {
+        console.log('Received ICE candidate...');
+        var candidate = new RTCIceCandidate({sdpMLineIndex:evt.sdpMLineIndex, sdpMid:evt.sdpMid, candidate:evt.candidate});
+        console.log(candidate);
+        peerConn.addIceCandidate(candidate);
 
-    } else if (evt.type === 'bye' && started) {
-      console.log("Received bye");
-      stop();
-    }
+      } else if (evt.type === 'bye' && started) {
+        console.log("Received bye");
+        stop();
+      }
+     //}
+    
   }
   function createPeerConnection() {
     console.log("Creating peer connection");
@@ -220,7 +232,10 @@ function singlechatexit(){
       if (evt.candidate) {
         console.log('Sending ICE candidate...');
         console.log(evt.candidate);
-        socket.json.send({type: "candidate",//-------type = 'candidate'--------------
+        socket.json.send({
+                          // from: singlechat_from,
+                          // to: singlechat_to,
+                          type: "candidate",//-------type = 'candidate'--------------
                           sdpMLineIndex: evt.candidate.sdpMLineIndex,
                           sdpMid: evt.candidate.sdpMid,
                           candidate: evt.candidate.candidate});

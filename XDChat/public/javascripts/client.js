@@ -99,26 +99,28 @@ var socket=io.connect(),//与服务器进行连接
                 document.getElementById('roominfo3').innerHTML +=  data.connectuser[i].from+"("+data.connectuser[i].type+") ";
             }
         }
-
-        service_choice.innerHTML = "";
-        for(var i in data.connectuser){
-            if(data.connectuser[i].type === "service"){
-                if(data.connectuser[i].iswork === "not working"){
-                    var text = document.createTextNode(data.connectuser[i].from);
-                    var a = document.createElement("a");
-                    a.appendChild(text);
-                    a.setAttribute("onclick","addText(this)");
-                    a.setAttribute("id",data.connectuser[i].from);
-                    a.setAttribute("text-align","center");
-                    a.setAttribute("line-height","50px");
-                    var div = document.createElement("div");
-                    div.appendChild(a);
-                    div.setAttribute("class","client-list");
-                    service_choice.appendChild(div);
-                    service_choice.setAttribute("id",data.connectuser[i].from);
+        if(type == "user"){
+            service_choice.innerHTML = "";
+            for(var i in data.connectuser){
+                if(data.connectuser[i].type === "service"){
+                    if(data.connectuser[i].iswork === "not working"){
+                        var text = document.createTextNode(data.connectuser[i].from);
+                        var a = document.createElement("a");
+                        a.appendChild(text);
+                        a.setAttribute("onclick","addText(this)");
+                        a.setAttribute("id",data.connectuser[i].from);
+                        a.setAttribute("text-align","center");
+                        a.setAttribute("line-height","50px");
+                        var div = document.createElement("div");
+                        div.appendChild(a);
+                        div.setAttribute("class","client-list");
+                        service_choice.appendChild(div);
+                        service_choice.setAttribute("id",data.connectuser[i].from);
+                    }   
                 }   
-            }   
+            }
         }
+        
     }
     function showlogintext(data){
         var time = new Date();
