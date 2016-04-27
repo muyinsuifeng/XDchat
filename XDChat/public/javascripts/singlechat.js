@@ -82,9 +82,7 @@ function singlechatexit(){
 
   // get the local video up
   function startVideo() {
-      socket.emit("singlechat_room",{
-
-      });
+      socket.emit("singlechat_room",{});
 
 
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mediaDevices.getUserMedia || navigator.msGetUserMedia;

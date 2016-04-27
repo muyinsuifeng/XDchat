@@ -5,6 +5,7 @@ function User(user) {
   this.name = user.name;
   this.type = user.type;
   this.password = user.password;
+  //this.isonline = user.isonlie;
 };
 
 module.exports = User;
@@ -16,6 +17,7 @@ User.prototype.save = function (callback) {
     type: this.type,
     name: this.name,
     password: this.password
+    //isonline: false
   };
   //打开数据库
   mongodb.open(function (err, db) {
@@ -99,3 +101,58 @@ User.prototype.isexist = function(name,callback) {
     });
   });
 };
+
+
+// 更改用户信息
+// User.prototype.change_offline = function(name) {
+//   //打开数据库
+//   mongodb.open(function (err, db) {
+//     if (err) {
+//       return callback(err);//错误，返回 err 信息
+//     }
+//     //读取 users 集合
+//     db.collection('users', function (err, collection) {
+//       if (err) {
+//         mongodb.close();
+//         return callback(err);//错误，返回 err 信息
+//       }
+//       //查找用户名（name键）值为 name 一个文档
+//       collection.update({
+//         name: name
+//       }, {$set:{isonline:false}},function (err, user) {
+//         mongodb.close();
+//         if (err) {
+//           console.log(result);
+//         }
+//         console.log(err);
+//       });
+//     });
+//   });
+// };
+
+// 更改用户信息
+// User.prototype.change_online = function(name) {
+//   //打开数据库
+//   mongodb.open(function (err, db) {
+//     if (err) {
+//       return callback(err);//错误，返回 err 信息
+//     }
+//     //读取 users 集合
+//     db.collection('users', function (err, collection) {
+//       if (err) {
+//         mongodb.close();
+//         return callback(err);//错误，返回 err 信息
+//       }
+//       //查找用户名（name键）值为 name 一个文档
+//       collection.update({
+//         name: name
+//       }, {$set:{isonline:true}},function (err, user) {
+//         mongodb.close();
+//         if (err) {
+//           console.log(result);
+//         }
+//         console.log(err);
+//       });
+//     });
+//   });
+// };

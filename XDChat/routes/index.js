@@ -67,6 +67,10 @@
 var express = require('express');
 var userdatabase = require('../database/userdatabase');
 var router = express.Router();
+var user_online = [];
+var server_online = [];
+
+
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -114,8 +118,15 @@ router.route('/userlogin')
   		else{
   			if(user.password == pwd){
   				//console.log("3");
-  				req.session.user = user;
-        		res.redirect('/home');
+          if(isexist(user_online,name)){
+            req.session.error='该用户已登录';
+            res.redirect('/userlogin');
+          }
+          else {
+            req.session.user = user;
+            user_online.push(name);
+            res.redirect('/home');
+          }
   			}
   			else{//console.log("4");
   				req.session.error='密码错误';
@@ -125,6 +136,12 @@ router.route('/userlogin')
   	});
 });
 
+function isexist(array,name){
+  for(var i in array ){
+    if(array[i] === name) return true;
+  }
+  return false;
+}
 
 
 
@@ -146,7 +163,7 @@ router.route('/register')
   	newUser.isexist(name,function(err,user){
 
   		if(user){
-  			req.session.error='该用户已存在';
+  			 req.session.error='该用户已存在';
         	res.redirect('/register');
   		}
   		else{newUser.save(function (err, user) {
@@ -206,8 +223,16 @@ router.route('/custom_servicelogin')
   		else{
   			if(user.password == pwd){
   				//console.log("3");
-  				req.session.user = user;
-        		res.redirect('/home');
+          if(isexist(server_online,name)){
+            req.session.error='该客服已登录';
+            res.redirect('/custom_servicelogin');
+          }
+          else {
+            req.session.user = user;
+            server_online.push(name);
+            res.redirect('/home');
+          }
+  				  
   			}
   			else{//console.log("4");
   				req.session.error='密码错误';
@@ -223,12 +248,43 @@ router.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-router.get('/home', function(req, res) {
+// router.get('/home', function(req, res) {
+//     authentication(req, res);
+//     var user =req.session.user ;
+//     req.session.user = null;
+//     res.render('home', { title: user });
+    
+// });
+router.route('/home')
+.get( function(req, res) {
     authentication(req, res);
     var user =req.session.user ;
+    console.log("/home"+user.name+user.type);
     req.session.user = null;
-    res.render('home', { title: user });
+    res.render('home', { title: user});
     
+})
+ .post(function(req, res) {
+  var name = req.body.logout_name;
+  var type = req.body.logout_type;
+
+  console.log(name);
+  if(type === "user"){
+    for(var i in user_online){
+      if(user_online[i] === name){
+        user_online.splice(i,1);
+      }
+    }
+  }
+  else{
+    for(var i in server_online){
+      if(server_online[i] === name){
+        server_online.splice(i,1);
+      }
+    }
+  }
+  res.redirect('/logout');
+
 });
 
 router.get('/singlechat', function(req, res) {

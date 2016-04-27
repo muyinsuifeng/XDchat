@@ -5,7 +5,9 @@ var socket=io.connect(),//与服务器进行连接
     	input = document.getElementById('message');
         id = document.getElementById('id').innerHTML;
         service_choice = document.getElementById('service_choice');
-
+        // form = document.getElementById('form');
+        logout_name = document.getElementById('logout_name');
+        logout_type = document.getElementById('logout_type');
         // roominfo = document.getElementById('roominfo').innerHTML;
         // roominfo2 = document.getElementById('roominfo2').innerHTML;
     	messagebox = document.getElementById('messagebox');
@@ -15,6 +17,7 @@ var socket=io.connect(),//与服务器进行连接
         scrollTop();
     });
     socket.on('link', function(data) {  
+        
         //将消息输出到控制台 
         document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
         showinfo(data);
@@ -30,11 +33,15 @@ var socket=io.connect(),//与服务器进行连接
     });   
     
     function link(){
+        console.log("link_before");
+        document.getElementById('logout_name').value = name;
+        document.getElementById('logout_type').value = type;
     	socket.emit('link', {
             id:id,
     		type:type,
     		from:name,
     	});
+        console.log("link_after");
     }
     function logout(){
         socket.emit('logout', {

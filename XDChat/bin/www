@@ -37,7 +37,6 @@ var singlechat = {};
 var room = [];
 var temporary_room = [];
 var flag = 0;
-var wsc = {};
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
     console.log( "a socket connected" );
@@ -110,13 +109,12 @@ io.on('connection', function(socket) {
     socket.on('link',function(link){
         socket.name = link.id;
         if(!connectuser.hasOwnProperty(link.id)){
-
           connectuser[link.id] = {from:link.from,type:link.type,iswork:"not working"};
           connectnumber++;
+          console.log("1"+link.type+"1");
+          io.emit('link', {connectuser:connectuser,connectnumber:connectnumber,userinfo:link});
+          console.log(link.from+'加入了聊天室');
         }
-        console.log("1"+link.type+"1");
-        io.emit('link', {connectuser:connectuser,connectnumber:connectnumber,userinfo:link});
-        console.log(link.from+'加入了聊天室');
     });
     socket.on('Meg', function(data) {  
         console.log(data.context);
@@ -172,7 +170,14 @@ io.on('connection', function(socket) {
         var name  = data.from;
             context = data.context;
             to = data.to;
-        io.emit('singlechatMeg', {name:name,to:to,context:context});
+        for(var i in room){
+          if(socket.id === room[i][0].id ||socket.id === room[i][1].id ){
+            console.log("singlechatMeg");
+            room[i][0].emit('singlechatMeg', {name:name,to:to,context:context});
+            room[i][1].emit('singlechatMeg', {name:name,to:to,context:context});
+          }
+        }
+        //io.emit('singlechatMeg', {name:name,to:to,context:context});
          //console.log(context);
     });
     socket.on('singlechatexit',function(data){
@@ -193,24 +198,7 @@ io.on('connection', function(socket) {
       io.emit('singlechatexit',{name:name,to:to});
       console.log(name+" "+to+'客服服务结束');
     });
-    // socket.on('video',function(data){
-    //   var name = data.name;
-    //   var to = data.to;
-    //   console.log(data.localMediaStream);
-    //   io.emit('video',{
-    //     name:name,to:to,localMediaStream:data.localMediaStream
-    //   });
-    //  });
-    // socket.on('message', function(message) {
-    //     var json = JSON.parse(message);
-    //     console.log('received (' + desc + '): ', json);
-    //     io.emit('message', function (error) {
-    //         if (error) {
-    //             console.log('Send message error (' + desc + '): ', error);
-    //         }
-    //     });
-    // });
-  
+    
   
 
 });  
