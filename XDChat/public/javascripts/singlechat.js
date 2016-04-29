@@ -4,11 +4,13 @@ var singlechat_from = window.name.split("/")[0];
 var singlechat_to = window.name.split("/")[2];
 var input = document.getElementById('message');
 var messagebox = document.getElementById('messagebox');
+container = document.getElementById('historyMsg'),
 //---------------------chat--------------------------------------
 socket.on('singlechatMeg',function(data){
 	if(data.name === singlechat_from ||data.name === singlechat_to ||data.to === singlechat_from ||data.to === singlechat_to ){
 		//messagebox.value=data.name+data.to+data.context+" "+singlechat_from+singlechat_to;
-		var time = new Date();
+		var msgToDisplay = document.createElement('p');
+    var time = new Date();
         	hours = time.getHours();
         	minutes = time.getMinutes();
         	seconds = time.getSeconds();
@@ -16,11 +18,29 @@ socket.on('singlechatMeg',function(data){
         	hours = changetime(hours);
         	seconds = changetime(seconds);
         var output = hours+":"+minutes+":"+seconds+":"+"\n";
-        	output += data.name +":"+data.context+"\n";
-        messagebox.value += output;
-        scrollTop();
+        	output += data.name +":"+showEmoji(data.context)+"\n";
+        msgToDisplay.innerHTML=output;
+        container.appendChild(msgToDisplay);
+        container.scrollTop = container.scrollHeight;
+        //messagebox.value += output;
+        //scrollTop();
 	}
 });
+function showEmoji(msg) {
+    var match, result = msg,
+        reg = /\[emoji:\d+\]/g,
+        emojiIndex,
+        totalEmojiNum = document.getElementById('emojiWrapper').children.length;
+    while (match = reg.exec(msg)) {
+        emojiIndex = match[0].slice(7, -1);
+        if (emojiIndex > totalEmojiNum) {
+            result = result.replace(match[0], '[X]');
+        } else {
+            result = result.replace(match[0], '<img src="./images/F_' + emojiIndex + '.gif" />');
+        };
+    };
+    return result;
+}
 socket.on('singlechatexit',function(data){
 	if(data.name === singlechat_from ||data.name === singlechat_to ||data.to === singlechat_from ||data.to === singlechat_to ){
 		window.close();
@@ -374,4 +394,37 @@ function send_files(){
 
 
 
-  //----------------------------------------
+  //--------------------emoji--------------------
+function initialEmoji(){
+    var emojiContainer = document.getElementById('emojiWrapper'),
+        docFragment = document.createDocumentFragment();
+    for (var i = 40; i > 0; i--) {
+        var emojiItem = document.createElement('img');
+        emojiItem.src = './images/F_' + i + '.gif';
+        emojiItem.title = i;
+        docFragment.appendChild(emojiItem);
+    };
+    emojiContainer.appendChild(docFragment);
+    emojiContainer.style.display = 'none';
+}
+this.initialEmoji();
+ document.getElementById('emoji').addEventListener('click', function(e) {
+     var emojiwrapper = document.getElementById('emojiWrapper');
+     emojiwrapper.style.display = 'block';
+     e.stopPropagation();
+ }, false);
+ document.body.addEventListener('click', function(e) {
+     var emojiwrapper = document.getElementById('emojiWrapper');
+     if (e.target != emojiwrapper) {
+         emojiwrapper.style.display = 'none';
+     };
+ });
+ document.getElementById('emojiWrapper').addEventListener('click', function(e) {
+    //获取被点击的表情
+    var target = e.target;
+    if (target.nodeName.toLowerCase() == 'img') {
+        var messageInput = document.getElementById('message');
+        messageInput.focus();
+        messageInput.value = messageInput.value + '[emoji:' + target.title + ']';
+    };
+}, false);

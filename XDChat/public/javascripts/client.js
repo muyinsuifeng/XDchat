@@ -11,10 +11,11 @@ var socket=io.connect(),//与服务器进行连接
         // roominfo = document.getElementById('roominfo').innerHTML;
         // roominfo2 = document.getElementById('roominfo2').innerHTML;
     	messagebox = document.getElementById('messagebox');
+        container = document.getElementById('historyMsg'),
     socket.on('Meg', function(data) {  
         //将消息输出到控制台 
         showtext(data);
-        scrollTop();
+        //scrollTop();
     });
     socket.on('link', function(data) {  
         
@@ -22,17 +23,17 @@ var socket=io.connect(),//与服务器进行连接
         document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
         showinfo(data);
         showlogintext(data);
-        scrollTop();
+        //scrollTop();
     });   
     socket.on('logout', function(data) {  
         //将消息输出到控制台 
         document.getElementById('roominfo').innerHTML = "当前在线人数:" + data.connectnumber;
         showinfo(data);
         showlogouttext(data);
-        scrollTop();
+        //scrollTop();
     });   
     
-    function link(){
+    function linked(){
         console.log("link_before");
         document.getElementById('logout_name').value = name;
         document.getElementById('logout_type').value = type;
@@ -101,9 +102,9 @@ var socket=io.connect(),//与服务器进行连接
    }
 
 
-   function scrollTop(){
-        document.getElementById("messagebox").scrollTop = document.getElementById("messagebox").scrollHeight;
-   }
+   // function scrollTop(){
+   //      document.getElementById("messagebox").scrollTop = document.getElementById("messagebox").scrollHeight;
+   // }
 
 
     function showinfo(data){
@@ -144,6 +145,7 @@ var socket=io.connect(),//与服务器进行连接
         
     }
     function showlogintext(data){
+        var msgToDisplay = document.createElement('p');
         var time = new Date();
             hours = time.getHours();
             minutes = time.getMinutes();
@@ -153,9 +155,13 @@ var socket=io.connect(),//与服务器进行连接
             seconds = changetime(seconds);
         var output = "      "+hours+":"+minutes+":"+seconds+":"+"    ";
             output += data.userinfo.from+"加入了聊天室\n";
-        messagebox.value += output;
+        //messagebox.value += output;
+        msgToDisplay.innerHTML=output;
+        container.appendChild(msgToDisplay);
+        container.scrollTop = container.scrollHeight;
     }
     function showlogouttext(data){
+        var msgToDisplay = document.createElement('p');
         var time = new Date();
             hours = time.getHours();
             minutes = time.getMinutes();
@@ -165,9 +171,13 @@ var socket=io.connect(),//与服务器进行连接
             seconds = changetime(seconds);
         var output = "      "+hours+":"+minutes+":"+seconds+":"+"    ";
             output += data.userinfo.name+"退出了聊天室\n";
-        messagebox.value += output;
+        //messagebox.value += output;
+        msgToDisplay.innerHTML=output;
+        container.appendChild(msgToDisplay);
+        container.scrollTop = container.scrollHeight;
     }
     function showtext(data){
+        var msgToDisplay = document.createElement('p');
         var time = new Date();
             hours = time.getHours();
             minutes = time.getMinutes();
@@ -176,9 +186,28 @@ var socket=io.connect(),//与服务器进行连接
             hours = changetime(hours);
             seconds = changetime(seconds);
         var output = hours+":"+minutes+":"+seconds+":"+"    \n";
-            output += data.from + ":" + data.context + "\n";
-        messagebox.value += output;
+            output += data.from + ":" + showEmoji(data.context) + "\n";
+        // messagebox.value += output;
+        msgToDisplay.innerHTML=output;
+        container.appendChild(msgToDisplay);
+        container.scrollTop = container.scrollHeight;
+       
     }
+   function showEmoji(msg) {
+    var match, result = msg,
+        reg = /\[emoji:\d+\]/g,
+        emojiIndex,
+        totalEmojiNum = document.getElementById('emojiWrapper').children.length;
+    while (match = reg.exec(msg)) {
+        emojiIndex = match[0].slice(7, -1);
+        if (emojiIndex > totalEmojiNum) {
+            result = result.replace(match[0], '[X]');
+        } else {
+            result = result.replace(match[0], '<img src="./images/F_' + emojiIndex + '.gif" />');
+        };
+    };
+    return result;
+}
 
 //singlechat跳转
 
@@ -213,3 +242,39 @@ var socket=io.connect(),//与服务器进行连接
 	socket.on('exit',function(data){
 		showinfo(data);
 	});
+
+
+//----------------emoji-----------
+function initialEmoji(){
+    var emojiContainer = document.getElementById('emojiWrapper'),
+        docFragment = document.createDocumentFragment();
+    for (var i = 40; i > 0; i--) {
+        var emojiItem = document.createElement('img');
+        emojiItem.src = './images/F_' + i + '.gif';
+        emojiItem.title = i;
+        docFragment.appendChild(emojiItem);
+    };
+    emojiContainer.appendChild(docFragment);
+    emojiContainer.style.display = 'none';
+}
+this.initialEmoji();
+ document.getElementById('emoji').addEventListener('click', function(e) {
+     var emojiwrapper = document.getElementById('emojiWrapper');
+     emojiwrapper.style.display = 'block';
+     e.stopPropagation();
+ }, false);
+ document.body.addEventListener('click', function(e) {
+     var emojiwrapper = document.getElementById('emojiWrapper');
+     if (e.target != emojiwrapper) {
+         emojiwrapper.style.display = 'none';
+     };
+ });
+ document.getElementById('emojiWrapper').addEventListener('click', function(e) {
+    //获取被点击的表情
+    var target = e.target;
+    if (target.nodeName.toLowerCase() == 'img') {
+        var messageInput = document.getElementById('message');
+        messageInput.focus();
+        messageInput.value = messageInput.value + '[emoji:' + target.title + ']';
+    };
+}, false);

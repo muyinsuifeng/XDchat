@@ -10,17 +10,33 @@
     margin: 10px 5px 0 0;
   }
 </style>
--->
+--><style type="text/css">
+		#historyMsg {
+			border: solid;
+			height: 400px;
+			background-color: #fff;
+			overflow: auto;
+			padding: 2px;
+		}
+		#historyMsg img {
+			max-width: 99%;
+		}</style>
 <script src="./javascripts/adapter.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 </head>
 <body onload="startVideo();">
-<textarea id ='messagebox' rows="20" cols="150" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea>
-
+<!-- <textarea id ='messagebox' rows="20" cols="150" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea> -->
+<div id="historyMsg"></div>
 <div>
-	<input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
-<button type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+	<input  style="float: left;" input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
+<button style="float: left;" type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+<div style="float: left;">
+            <input id="emoji" type="button" value="emoji" title="emoji" />
+            <div id="emojiWrapper"></div>
+           
+</div>
 <button  id = 'logout' onclick="singlechatexit()">退出</button>
+
 <div>
 	<input type="file" id="files" name="files[]" multiple />
 	<!--	<output id="list"></output>
