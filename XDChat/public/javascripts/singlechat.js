@@ -6,7 +6,6 @@ var input = document.getElementById('message');
 var messagebox = document.getElementById('messagebox');
 //---------------------chat--------------------------------------
 socket.on('singlechatMeg',function(data){
-	
 	if(data.name === singlechat_from ||data.name === singlechat_to ||data.to === singlechat_from ||data.to === singlechat_to ){
 		//messagebox.value=data.name+data.to+data.context+" "+singlechat_from+singlechat_to;
 		var time = new Date();
@@ -26,6 +25,10 @@ socket.on('singlechatexit',function(data){
 	if(data.name === singlechat_from ||data.name === singlechat_to ||data.to === singlechat_from ||data.to === singlechat_to ){
 		window.close();
 	}
+});
+
+socket.on('emerg',function(data){
+  alert(data.from+"请求紧急呼叫!!请紧急停止聊天！");
 });
 
 
@@ -231,8 +234,6 @@ function singlechatexit(){
         console.log('Sending ICE candidate...');
         console.log(evt.candidate);
         socket.json.send({
-                          // from: singlechat_from,
-                          // to: singlechat_to,
                           type: "candidate",//-------type = 'candidate'--------------
                           sdpMLineIndex: evt.candidate.sdpMLineIndex,
                           sdpMid: evt.candidate.sdpMid,
@@ -260,3 +261,117 @@ function singlechatexit(){
     }
   }
   //----------------------------------
+
+
+  
+   var reader = new FileReader();
+  //-----------file upload-----------
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+  function handleFileSelect(evt) {
+    console.log("reader_init:"+reader.result+" ");
+    var files = evt.target.files; // FileList object
+	console.log("typeof(reader):"+typeof(reader));
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+		
+      // Only process image files.
+      // if (!f.type.match('image.*')) {
+      //   continue;
+      // }
+
+		reader.onerror = (function(){
+			console.log("readfile_error");
+		});
+      //Closure to capture the file information.
+        reader.onload = (function() {
+           return function(e) {
+             // Render thumbnail.
+            console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
+//			socket.emit('files',{
+//							from: singlechat_from,
+//							files: e.target.result});
+//           var span = document.createElement('span');
+//           span.innerHTML = ['<img class="thumb" src="', e.target.result,
+//                             '" title="', escape(theFile.name), '"/>'].join('');
+//           document.getElementById('list').insertBefore(span, null);
+
+           };
+         })(f);
+
+      // Read in the image file as a data URL.
+      //reader.readAsText(f);
+      reader.readAsDataURL(f);
+      console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
+    }
+
+  }
+  socket.on("files",function(data){
+  	
+  	if(window.confirm("收到"+data.from+"的文件，是否接收？")){
+       console.log(data.from +":" +typeof(data.files));
+    }
+  });
+  
+  
+  //--------------------------------------------
+  //---------data channel----------------
+function send_files(){
+	socket.emit('files',{
+							from: singlechat_from,
+							files: reader});
+////var peerConnection = new RTCPeerConnection();
+//var dataChannelOptions = {
+//  ordered: false, //不保证到达顺序
+//  maxRetransmitTime: 3000, //最大重传时间
+//};
+////使用信令传输信道创建对等连接
+//
+//if(!peerConn){
+//	peerConn = new RTCPeerConnection();
+//}
+//var dataChannel = peerConn.createDataChannel("myLabel", dataChannelOptions);
+//console.log("send_files:" + reader.result);
+//dataChannel.onerror = function (error) {
+//  console.log("Data Channel Error:", error);
+//};
+//dataChannel.onmessage = function (event) {
+//	if (event.type === 'send_files_offer') {
+//      console.log("Received send_files_offer'...")
+//    
+//    console.log('Creating remote session description...' );
+////    peerConnection.
+////    //peerConn.setRemoteDescription(new RTCSessionDescription(evt));
+////    console.log('Sending answer...');//---------type = 'answer'------------
+////    peerConn.createAnswer(setLocalAndSendMessage, createAnswerFailed);//, mediaConstraints);
+////
+////    } else if (evt.type === 'answer' && started) {
+////      console.log('Received answer...');
+////      console.log('Setting remote session description...' );
+////      peerConn.setRemoteDescription(new RTCSessionDescription(evt));
+////
+////    } else if (evt.type === 'candidate' && started) {
+////      console.log('Received ICE candidate...');
+////      var candidate = new RTCIceCandidate({sdpMLineIndex:evt.sdpMLineIndex, sdpMid:evt.sdpMid, candidate:evt.candidate});
+////      console.log(candidate);
+////      peerConn.addIceCandidate(candidate);
+////
+//  } 
+//};
+//
+//dataChannel.onopen= function () {
+//	console.log("Send Message:");
+//  socket.json.emit({
+//  	type:"send_files_offer"
+//  });
+//};
+//
+//dataChannel.onclose = function () {
+//  console.log("The Data Channel is Closed");
+//};
+}
+
+
+
+
+  //----------------------------------------

@@ -22,17 +22,20 @@
 		
 		<textarea id ='messagebox' rows="30" cols="200" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea>
 
-		<div>
+		<div style="float: left;">
 			<input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
 		<button type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+		</div>
 		<!-- <a class="btn" href="/logout" onclick="logout()">退出</a> -->
-		<form id="form" method="post" >
+		<div style="float: left;">
+		<form id="form" method="post" style="float: left;" >
 		<input id= "logout_name" name = "logout_name" style="display: none;"></input>
 		<input id= "logout_type" name = "logout_type" style="display: none;"></input>
 		<button type="submit" onclick = "logout()">退出</button>
 		</form>
+		
 		</div>
-
+		<button  style="float: left;" onclick = "sendemerg()" id= "sendemerg">紧急呼叫</button>
 	<div class="qq-client">
 		<a href="javascript:void(0);" class="qq-client-open">
 			在

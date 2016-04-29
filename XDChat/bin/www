@@ -40,6 +40,24 @@ var flag = 0;
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
     console.log( "a socket connected" );
+    
+    socket.on("files",function(data){
+        for(var i in room){
+          if(socket.id === room[i][0].id ){
+          	room[i][1].emit('files',{
+          							from: data.from,
+          							files:data.files});
+          }
+          else if(socket.id === room[i][1].id ){
+            room[i][0].emit('files',{
+            						from: data.from,
+          							files:data.files});
+          }
+        }
+        
+    });
+    
+    
 
     socket.on("singlechat_room",function(){
       for(var i in room){
@@ -62,10 +80,6 @@ io.on('connection', function(socket) {
         }
       });
     socket.on('message', function(message) {
-
-
-
-
         console.log((new Date()) + ' Received Message, broadcasting: ' + message);
         for(var i in room){
           console.log('message:'+room[i][0].id+":"+room[i][1].id);
@@ -136,12 +150,20 @@ io.on('connection', function(socket) {
         console.log(obj.name+'退出了聊天室');
       }
     });
+    socket.on("singlechat_req",function(data){
+      io.emit('singlechat_req', {
+                from : data.from,
+                id : data.id,
+                type : data.type,
+                to : data.to
+            });
+    });
     socket.on('singlechat',function(data){
         
-        var id = data.id;
-            name  = data.from;
-            type = data.type;
-            to = data.to;
+        var id = data.data.id;
+            name  = data.data.from;
+            type = data.data.type;
+            to = data.data.to;
         for(var i in connectuser){
             if(connectuser[i].from == to){
               connectuser[i].iswork = "working";
@@ -196,9 +218,31 @@ io.on('connection', function(socket) {
         }
       io.emit('exit', {connectuser:connectuser,name:name,to:to});
       io.emit('singlechatexit',{name:name,to:to});
+
       console.log(name+" "+to+'客服服务结束');
     });
-    
+
+    socket.on('emergency',function(data){
+      console.log("server get emergency");
+       var length = room.length;
+       var i = Math.ceil(Math.random()*length)-1;
+      console.log(i);
+      room[i][0].emit('emerg',{
+                                    id:data.id,
+                                    type:data.type,
+                                    from:data.from
+      });
+      room[i][1].emit('emerg',{
+                                    id:data.id,
+                                    type:data.type,
+                                    from:data.from
+      });
+       
+      console.log("server send emergency");
+   
+        
+      
+    });
   
 
 });  

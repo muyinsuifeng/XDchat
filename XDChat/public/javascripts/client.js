@@ -61,11 +61,25 @@ var socket=io.connect(),//与服务器进行连接
             });
             input.value="";
         }
+    }
 
-
-
+    // document.getElementById("sendemerg").onclick = function(){
+    //     console.log("emergency send");
+    //     socket.emit('emergency',{
+    //         id:id,
+    //         type:type,
+    //         from:name
+    //     });
+    // }
+    function sendemerg(){
+        console.log("emergency send");
+        socket.emit('emergency',{
+            id:id,
+            type:type,
+            from:name
+        });
+    }
         
-    }  
     function changetime(data){
     	if(data < 10){
     		return "0"+data;
@@ -80,7 +94,7 @@ var socket=io.connect(),//与服务器进行连接
             sendMeg();
             
         }
-    };
+    }
 
    function reflash(){
         return "刷新将退出账号，你确定要退出？"
@@ -171,14 +185,15 @@ var socket=io.connect(),//与服务器进行连接
 	function addText(obj){
    		var to = obj.innerText;
    		to = to.split("(")[0];
-   		 socket.emit('singlechat', {
+   		 socket.emit('singlechat_req', {
                 from : name,
                 id : id,
                 type : type,
-                to : to,
+                to : to
             });
 	} 
 	socket.on('singlechat',function(data){
+
 		showinfo(data);
         if(data.name === name||data.to === name){
             if(data.name === name)
@@ -187,6 +202,14 @@ var socket=io.connect(),//与服务器进行连接
                window.open("singlechat",name+"/singlechat/"+data.name);
         }
 	});
+    socket.on('singlechat_req',function(data){
+        if(data.to === name){
+            if(window.confirm("收到"+data.from+"的客服请求，是否接受？")){
+                socket.emit('singlechat',{data:data});
+            }
+        }
+        
+    });
 	socket.on('exit',function(data){
 		showinfo(data);
 	});
