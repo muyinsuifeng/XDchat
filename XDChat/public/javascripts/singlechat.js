@@ -287,59 +287,59 @@ function singlechatexit(){
    var reader = new FileReader();
   //-----------file upload-----------
 
-  document.getElementById('files').addEventListener('change', handleFileSelect, false);
-  function handleFileSelect(evt) {
-    console.log("reader_init:"+reader.result+" ");
-    var files = evt.target.files; // FileList object
-	console.log("typeof(reader):"+typeof(reader));
-    // Loop through the FileList and render image files as thumbnails.
-    for (var i = 0, f; f = files[i]; i++) {
+//   document.getElementById('files').addEventListener('change', handleFileSelect, false);
+//   function handleFileSelect(evt) {
+//     console.log("reader_init:"+reader.result+" ");
+//     var files = evt.target.files; // FileList object
+// 	console.log("typeof(reader):"+typeof(reader));
+//     // Loop through the FileList and render image files as thumbnails.
+//     for (var i = 0, f; f = files[i]; i++) {
 		
-      // Only process image files.
-      // if (!f.type.match('image.*')) {
-      //   continue;
-      // }
+//       // Only process image files.
+//       // if (!f.type.match('image.*')) {
+//       //   continue;
+//       // }
 
-		reader.onerror = (function(){
-			console.log("readfile_error");
-		});
-      //Closure to capture the file information.
-        reader.onload = (function() {
-           return function(e) {
-             // Render thumbnail.
-            console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
-//			socket.emit('files',{
-//							from: singlechat_from,
-//							files: e.target.result});
-//           var span = document.createElement('span');
-//           span.innerHTML = ['<img class="thumb" src="', e.target.result,
-//                             '" title="', escape(theFile.name), '"/>'].join('');
-//           document.getElementById('list').insertBefore(span, null);
+// 		reader.onerror = (function(){
+// 			console.log("readfile_error");
+// 		});
+//       //Closure to capture the file information.
+//         reader.onload = (function() {
+//            return function(e) {
+//              // Render thumbnail.
+//             console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
+// //			socket.emit('files',{
+// //							from: singlechat_from,
+// //							files: e.target.result});
+// //           var span = document.createElement('span');
+// //           span.innerHTML = ['<img class="thumb" src="', e.target.result,
+// //                             '" title="', escape(theFile.name), '"/>'].join('');
+// //           document.getElementById('list').insertBefore(span, null);
 
-           };
-         })(f);
+//            };
+//          })(f);
 
-      // Read in the image file as a data URL.
-      //reader.readAsText(f);
-      reader.readAsDataURL(f);
-      console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
-    }
+//       // Read in the image file as a data URL.
+//       //reader.readAsText(f);
+//       reader.readAsDataURL(f);
+//       console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
+//     }
 
-  }
-  socket.on("files",function(data){
+//   }
+//   socket.on("files",function(data){
   	
-  	if(window.confirm("收到"+data.from+"的文件，是否接收？")){
-       console.log(data.from +":" +typeof(data.files));
-    }
-  });
+//   	if(window.confirm("收到"+data.from+"的文件，是否接收？")){
+//        console.log(data.from +":" +typeof(data.files));
+//     }
+//   });
   
   
   //--------------------------------------------
   //---------data channel----------------
-function send_files(){
-	socket.emit('files',{
-							from: singlechat_from,
-							files: reader});
+// function send_files(){
+// 	socket.emit('files',{
+// 							from: singlechat_from,
+// 							files: reader});
 ////var peerConnection = new RTCPeerConnection();
 //var dataChannelOptions = {
 //  ordered: false, //不保证到达顺序
@@ -389,7 +389,7 @@ function send_files(){
 //dataChannel.onclose = function () {
 //  console.log("The Data Channel is Closed");
 //};
-}
+//}
 
 
 
@@ -428,3 +428,58 @@ this.initialEmoji();
         messageInput.value = messageInput.value + '[emoji:' + target.title + ']';
     };
 }, false);
+ //-----------images-----------------
+ var reader = new FileReader();
+ document.getElementById('sendImage').addEventListener('change', handleFileSelect, false);
+  function handleFileSelect(evt) {
+    console.log("reader_init:"+reader.result+" ");
+    var files = evt.target.files; // FileList object
+    console.log("typeof(reader):"+typeof(reader));
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+        
+      // Only process image files.
+      // if (!f.type.match('image.*')) {
+      //   continue;
+      // }
+
+        reader.onerror = (function(){
+            console.log("readfile_error");
+        });
+      //Closure to capture the file information.
+        reader.onload = (function() {
+           return function(e) {
+             // Render thumbnail.
+            console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
+//          socket.emit('files',{
+//                          from: singlechat_from,
+//                          files: e.target.result});
+//           var span = document.createElement('span');
+//           span.innerHTML = ['<img class="thumb" src="', e.target.result,
+//                             '" title="', escape(theFile.name), '"/>'].join('');
+//           document.getElementById('list').insertBefore(span, null);
+                socket.emit('singlechatimg', {
+                                    from:singlechat_from,
+                                    result:e.target.result});
+           };
+         })(f);
+
+      // Read in the image file as a data URL.
+      //reader.readAsText(f);
+      reader.readAsDataURL(f);
+      console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
+    }
+
+  }
+  function displayImage(user, imgData){
+    var container = document.getElementById('historyMsg'),
+        msgToDisplay = document.createElement('p'),
+        date = new Date().toTimeString().substr(0, 8);
+    msgToDisplay.innerHTML = user + '<span class="timespan">(' + date + '): </span> <br/>' + '<a href="' + imgData + '" target="_blank"><img src="' + imgData + '"/></a>';
+    container.appendChild(msgToDisplay);
+    container.scrollTop = container.scrollHeight;
+}
+socket.on('img',function(data){
+    console.log(data.data.result);
+    displayImage(data.data.from,data.data.result);
+})

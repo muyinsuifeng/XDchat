@@ -40,23 +40,38 @@ var flag = 0;
 var io = require('socket.io').listen(server);
 io.on('connection', function(socket) {
     console.log( "a socket connected" );
-    
-    socket.on("files",function(data){
-        for(var i in room){
-          if(socket.id === room[i][0].id ){
-          	room[i][1].emit('files',{
-          							from: data.from,
-          							files:data.files});
-          }
-          else if(socket.id === room[i][1].id ){
-            room[i][0].emit('files',{
-            						from: data.from,
-          							files:data.files});
+    //接收用户发来的图片
+    socket.on('img', function(imgData) {
+      console.log(imgData.from);
+    //通过一个newImg事件分发到除自己外的每个用户
+      io.emit('img', {data:imgData});
+    } );
+    // socket.on("files",function(data){
+    //     for(var i in room){
+    //       if(socket.id === room[i][0].id ){
+    //       	room[i][1].emit('files',{
+    //       							from: data.from,
+    //       							files:data.files});
+    //       }
+    //       else if(socket.id === room[i][1].id ){
+    //         room[i][0].emit('files',{
+    //         						from: data.from,
+    //       							files:data.files});
+    //       }
+    //     }
+        
+    // });
+    socket.on('singlechatimg', function(imgData) {
+      console.log(imgData.from);
+    //通过一个newImg事件分发到除自己外的每个用户
+    for(var i in room){
+          if(socket.id === room[i][0].id ||socket.id === room[i][1].id ){
+            console.log("room_send_Meg");
+            room[i][0].emit('img', {data:imgData});
+            room[i][1].emit('img', {data:imgData});
           }
         }
-        
-    });
-    
+    } );
     
 
     socket.on("singlechat_room",function(){

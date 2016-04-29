@@ -278,3 +278,82 @@ this.initialEmoji();
         messageInput.value = messageInput.value + '[emoji:' + target.title + ']';
     };
 }, false);
+
+
+ //----------------images------------
+ // document.getElementById('sendImage').addEventListener('change', function() {
+ //    //检查是否有文件被选中
+ //        console.log('sendImage');
+ //        //获取文件并用FileReader进行读取
+ //         var file = files[0],
+ //             reader = new FileReader();
+ //         if (!reader) {
+ //             displayNewMsg('system', '!your browser doesn\'t support fileReader', 'red');
+ //             value = '';
+ //             return;
+ //         };
+ //         reader.onload = function(e) {
+ //            //读取成功，显示到页面并发送到服务器
+ //             this.value = '';
+ //             socket.emit('img', {
+ //                                    from:name,
+ //                                    result:e.target.result});
+ //             displayImage('me', e.target.result);
+ //         };
+ //         reader.readAsDataURL(file);
+
+ // }, false);
+ var reader = new FileReader();
+ document.getElementById('sendImage').addEventListener('change', handleFileSelect, false);
+  function handleFileSelect(evt) {
+    console.log("reader_init:"+reader.result+" ");
+    var files = evt.target.files; // FileList object
+    console.log("typeof(reader):"+typeof(reader));
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+        
+      // Only process image files.
+      // if (!f.type.match('image.*')) {
+      //   continue;
+      // }
+
+        reader.onerror = (function(){
+            console.log("readfile_error");
+        });
+      //Closure to capture the file information.
+        reader.onload = (function() {
+           return function(e) {
+             // Render thumbnail.
+            console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
+//          socket.emit('files',{
+//                          from: singlechat_from,
+//                          files: e.target.result});
+//           var span = document.createElement('span');
+//           span.innerHTML = ['<img class="thumb" src="', e.target.result,
+//                             '" title="', escape(theFile.name), '"/>'].join('');
+//           document.getElementById('list').insertBefore(span, null);
+                socket.emit('img', {
+                                    from:name,
+                                    result:e.target.result});
+           };
+         })(f);
+
+      // Read in the image file as a data URL.
+      //reader.readAsText(f);
+      reader.readAsDataURL(f);
+      console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
+    }
+
+  }
+  function displayImage(user, imgData){
+    var container = document.getElementById('historyMsg'),
+        msgToDisplay = document.createElement('p'),
+        date = new Date().toTimeString().substr(0, 8);
+    msgToDisplay.innerHTML = user + '<span class="timespan">(' + date + '): </span> <br/>' + '<a href="' + imgData + '" target="_blank"><img src="' + imgData + '"/></a>';
+    container.appendChild(msgToDisplay);
+    container.scrollTop = container.scrollHeight;
+}
+socket.on('img',function(data){
+    console.log(data.data.result);
+    displayImage(data.data.from,data.data.result);
+})
