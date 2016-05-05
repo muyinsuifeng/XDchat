@@ -10,7 +10,8 @@
     margin: 10px 5px 0 0;
   }
 </style>
---><style type="text/css">
+-->
+<style type="text/css">
 		#historyMsg {
 			border: solid;
 			height: 400px;
@@ -25,38 +26,60 @@
 <script src="/socket.io/socket.io.js"></script>
 </head>
 <body onload="startVideo();">
-<!-- <textarea id ='messagebox' rows="20" cols="150" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea> -->
+<!-- <textarea id ='messagebox' rows="20" cols="150" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea>
+-->
 <div id="historyMsg"></div>
 <div>
 	<input  style="float: left;" input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
-<button style="float: left;" type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+<button style="float: left;" type = "submit" id = 'sendBtn' onclick= "sendMeg()">发送</button>
+<button style="float: left;"  id = 'filesend' onclick= "openfilesend()">文件传输</button>
 <div style="float: left;">
-            <input id="emoji" type="button" value="emoji" title="emoji" />
-            <div id="emojiWrapper"></div>
-           
+	<input id="emoji" type="button" value="emoji" title="emoji" />
+	<div id="emojiWrapper"></div>
+
 </div>
-<button  id = 'logout' onclick="singlechatexit()">退出</button>
+<button  id = 'logout' onclick= "singlechatexit()">退出</button>
 
 <div>
 	<!-- <input type="file" id="files" name="files[]" multiple />
-		<output id="list"></output>
+	<output id="list"></output>
 
-<button id="send_files" onclick="send_files()">发送文件</button> -->
-<label for="sendImage" class="imageLable">
-				<input id="sendImage" type="file" value="image"/>
-</label>
+	<button id="send_files" onclick="send_files()">发送文件</button>
+	-->
+	<label for="sendImage" class="imageLable">
+		<input id="sendImage" type="file" value="image"/>
+	</label>
 </div>
+</div>
+<!-- <div id="container" class="container">
+	<% if (locals.success) { %>
+	<div id="alt_sucess" class="alert alert-success">
+		<%- success %></div>
+	<% } %>
+
+	<% if (locals.error) { %>
+	<div id="alt_warning" class="alert alert-warning">
+		<%= error %></div>
+	<% } %>
+
+	<form class="form-signin" role="form" method="post" enctype='multipart/form-data'>
+		<h2 class="form-signin-heading">上传文件</h2>
+		<input id="fulAvatar" name="fulAvatar" type="file" class="form-control" />
+		<br/>
+		<button id="btnSub" class="btn btn-lg btn-primary" type="submit">上 传</button>
+	</form>
+
+</div> -->
+<div>
+	<video id="video" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
+	<video id="remotevideo" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
+
 </div>
 <div>
-<video id="video" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
-<video id="remotevideo" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
-
-</div>
-<div>
-<button type="button" onclick="startVideo();">开启视频</button>
-<button type="button" onclick="stopVideo();">暂停视频</button>
-<button type="button" onclick="connect();" style="margin-left: 200px">连接</button>
-<button type="button" onclick="hangUp();">断开</button>
+	<button type="button" onclick="startVideo();">开启视频</button>
+	<button type="button" onclick="stopVideo();">暂停视频</button>
+	<button type="button" onclick="connect();" style="margin-left: 200px">连接</button>
+	<button type="button" onclick="hangUp();">断开</button>
 </div>
 <script src="./javascripts/singlechat.js"></script>
 </body>

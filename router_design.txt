@@ -1,0 +1,6 @@
+访问路径			页面				描述
+/					index.html			登入界面。
+/user				user.html			用户界面，用户输入密码正确才能进入。
+/callcenter			callcenter.html		客服界面，客服输入密码正确才能进入。
+/logout				无					退出登录后，自动跳转到index.html。
+

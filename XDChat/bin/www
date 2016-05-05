@@ -67,8 +67,8 @@ io.on('connection', function(socket) {
     for(var i in room){
           if(socket.id === room[i][0].id ||socket.id === room[i][1].id ){
             console.log("room_send_Meg");
-            room[i][0].emit('img', {data:imgData});
-            room[i][1].emit('img', {data:imgData});
+            room[i][0].emit('singlechatimg', {data:imgData});
+            room[i][1].emit('singlechatimg', {data:imgData});
           }
         }
     } );
@@ -196,6 +196,27 @@ io.on('connection', function(socket) {
           console.log("singlechat:"+singlechat[i]+'\n');
 
     });
+
+    socket.on('filesendopen_req',function(data){
+      io.emit('filesendopen_req', {
+                from : data.from,
+                to : data.to
+            });
+    });
+    socket.on('filesendopen',function(data){
+      io.emit('filesendopen', {
+                from : data.from,
+                to : data.to
+              });
+    });
+    socket.on('sendfile',function(data){
+      io.emit('sendfile', {
+                from:data.from,
+                to:data.to,
+                path:data.path
+              });
+    })
+
     // socket.on('singlechatinit',function(data){
     //   console.log(data.from);
     //   io.emit('singlechatinit',{

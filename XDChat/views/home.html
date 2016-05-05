@@ -20,7 +20,7 @@
 		<script src="./javascripts/index.js"></script>
 		<script src="./socket.io/socket.io.js"></script>
 </head>
-<body onload= "linked()" onbeforeunload="return reflash()" onunload="logout()">
+<body onload= "linked()" ><!-- onbeforeunload="return reflash()" onunload="logout()" -->
 		<h1>Welcome<%= title.name %>, 欢迎登录！！</h1>
 		<h1 id="name" name= "logout_name" style="display: none;"><%= title.name %></h1>
 		<h1 id="type" style="display: none;"><%= title.type %></h1>
@@ -54,6 +54,25 @@
 				<input id="sendImage" type="file" value="image"/>
 			</label>
         </div>
+       <!--  <div id="container" class="container">
+        	<% if (locals.success) { %>        
+        	<div id="alt_sucess" class="alert alert-success">
+        		<%- success %></div>
+        	<% } %>        
+
+        	<% if (locals.error) { %>        
+        	<div id="alt_warning" class="alert alert-warning">
+        		<%= error %></div>
+        	<% } %>        
+
+        	<form class="form-signin" role="form" method="post" enctype='multipart/form-data'>
+        		<h2 class="form-signin-heading">上传文件</h2>
+        		<input id="fulAvatar" name="fulAvatar" type="file" class="form-control" />        
+        		<br/>        
+        		<button id="btnSub" class="btn btn-lg btn-primary" type="submit">上 传</button>
+        	</form>
+
+        </div> -->
 	<div class="qq-client">
 		<a href="javascript:void(0);" class="qq-client-open">
 			在
