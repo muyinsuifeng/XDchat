@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('XDChat:server');
 var http = require('http');
-
+var history_message = require('../database/history_message');
 /**
  * Get port from environment and store in Express.
  */
@@ -38,6 +38,7 @@ var room = [];
 var temporary_room = [];
 var flag = 0;
 var io = require('socket.io').listen(server);
+var history_socekt = [];
 io.on('connection', function(socket) {
     console.log( "a socket connected" );
     //接收用户发来的图片
@@ -210,6 +211,8 @@ io.on('connection', function(socket) {
               });
     });
     socket.on('sendfile',function(data){
+      console.log("www+sendfile");
+      console.log(data.path);
       io.emit('sendfile', {
                 from:data.from,
                 to:data.to,
@@ -224,10 +227,48 @@ io.on('connection', function(socket) {
     //     to:singlechat[data.from]
     //   })
     // })
+
+
+
     socket.on('singlechatMeg',function(data){
         var name  = data.from;
             context = data.context;
             to = data.to;
+        var time = new Date();//.format("yyyy-MM-dd hh:mm:ss");
+          // years = time.getFullYear();
+          // months = time.getMonth()+1;
+          // days = time.getDate();
+          // hours = time.getHours();
+          // minutes = time.getMinutes();
+          // seconds = time.getSeconds();
+          //minutes = changetime(minutes);
+          //hours = changetime(hours);
+          //seconds = changetime(seconds);
+        //var  time = new Date(changetime);
+        var gettime = time.getTime();
+        console.log("www_singlechatMeg",time);
+        var New_history_message = new history_message({
+          from:name,
+          to:to,
+          context:context,
+          // years:years,
+          // months:months,
+          // days:days,
+          // hours:hours,
+          // minutes:minutes,
+          // seconds:seconds,
+          date:time,
+          gettime:gettime
+        });
+        New_history_message.save(function(err){
+          if(err){
+            console.log("save_history_message_err");
+          }
+          else{
+            console.log("save_history_message_success");
+          }
+        });
+
         for(var i in room){
           if(socket.id === room[i][0].id ||socket.id === room[i][1].id ){
             console.log("singlechatMeg");
@@ -279,9 +320,76 @@ io.on('connection', function(socket) {
         
       
     });
+
+    socket.on("history_message",function(data){
+    
+    console.log('history_message_before');
+    var Newhistory_message = new history_message({
+       from:data.from,
+       to:data.to,
+       context:"",
+       date:"",
+       gettime:0
+    });
+    // var from_time = data.from_time.split('-');
+    // var to_time = data.to_time.split('-');
+    // for(var i in from_time){
+    //   from_time[i] = Number(from_time[i]);
+    //   to_time[i] = Number(to_time[i]);
+    // }
+    Newhistory_message.findhistory(data.from,data.to,data.from_time,data.to_time,function(err,history_message){
+       if(err){
+        console.log("history_message_err");
+       }
+       else {
+       
+        console.log("www_history"+history_message);
+        // console.log(history_message[0].context);
+
+        // console.log(history_message[1].context);
+
+        // console.log(history_message[2].context);
+		socket.emit("history_message",{
+			from:data.from,
+			to:data.to,
+			history_message:history_message
+			});
+       }
+       
+    });
+
+    })
   
 
-});  
+}); 
+
+Date.prototype.format = function (format) {
+           var args = {
+               "M+": this.getMonth() + 1,
+               "d+": this.getDate(),
+               "h+": this.getHours(),
+               "m+": this.getMinutes(),
+               "s+": this.getSeconds(),
+               "q+": Math.floor((this.getMonth() + 3) / 3),  //quarter
+               "S": this.getMilliseconds()
+           };
+           if (/(y+)/.test(format))
+               format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+           for (var i in args) {
+               var n = args[i];
+               if (new RegExp("(" + i + ")").test(format))
+                   format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? n : ("00" + n).substr(("" + n).length));
+           }
+           return format;
+       };
+
+
+// function changetime(data){
+//       if(data < 10){
+//         return "0"+data;
+//       }
+//       return data;
+//     } 
 //---------------------------------------------------
 /**
  * Listen on provided port, on all network interfaces.

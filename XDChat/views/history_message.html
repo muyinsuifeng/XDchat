@@ -1,0 +1,33 @@
+<!DOCTYPE html >
+<html >
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="./stylesheets/doubleDate.css" type="text/css" rel="stylesheet" />
+<script src="./javascripts/jquery-1.4.2.min.js"></script>
+<script src="./javascripts/doubleDate2.0.js"></script>
+<script src="./socket.io/socket.io.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./stylesheets/bootstrap.min.css">
+<script>
+$(function(){
+	$('.doubledate').kuiDate({
+		className:'doubledate',
+		isDisabled: "1"  // isDisabled为可选参数，“0”表示今日之前不可选，“1”标志今日之前可选
+	});
+});
+</script>
+</head>
+
+<body>
+<ul class="iptgroup">
+	<li>开始日期：</li>
+	<li><input type="text" id="time_from" readonly="readonly" class="doubledate ipticon"/></li>
+	<li style="width:20px;"></li>
+	<li>截止日期：</li>
+	<li><input type="text"  id="time_to" readonly="readonly" class="doubledate ipticon"/></li>
+</ul>
+<button onclick= "history_message()" class="btn btn-primary" >查询</button>
+<div id="history_message"></div>
+</body>
+<script type="text/javascript" src="./javascripts/history_message.js"></script>
+</html>

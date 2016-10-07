@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-	<html lang="en">
+<html lang="en">
 <head>
 		<meta charset="UTF-8">
 		<title>Document</title>
 		<style type="text/css">
-		#historyMsg {
-			border: solid;
-			height: 400px;
-			background-color: #fff;
-			overflow: auto;
-			padding: 2px;
-		}
-		#historyMsg img {
-			max-width: 99%;
-		}</style>
-
+		</style>
+		<link rel="stylesheet" type="text/css" href="./stylesheets/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css"  href="./stylesheets/index.css"/>
 		<script src="./javascripts/jquery-1.11.2.min.js"></script>
 		<script src="./javascripts/index.js"></script>
 		<script src="./socket.io/socket.io.js"></script>
+		<style type="text/css">
+			a:hover {
+				text-decoration: none;
+			}
+
+			.message-input {
+				height: 30px;
+
+			}
+		</style>
 </head>
 <body onload= "linked()" ><!-- onbeforeunload="return reflash()" onunload="logout()" -->
 		<h1>Welcome<%= title.name %>, 欢迎登录！！</h1>
@@ -31,29 +32,33 @@
 		
 		<!-- <textarea id ='messagebox' rows="30" cols="200" readonly="readonly" onfocus="this.scrollTop=this.scrollHeight"></textarea> -->
 		<div id="historyMsg"></div>
+		
+
 		<div style="float: left;">
-			<input  input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
-		<button type = "submit" id = 'sendBtn' onclick="sendMeg()">发送</button>
+			<input class="message-input" input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
+		<button class="btn btn-primary" type = "submit" id = 'sendBtn' onclick="sendMeg()" style="margin-right: 15px">发送</button>
 		</div>
 		<!-- <a class="btn" href="/logout" onclick="logout()">退出</a> -->
 		<div style="float: left;">
-		<form id="form" method="post" style="float: left;" >
+
+		<form id="form" method="post" style="float: left;" style="margin-right: 15px">
 		<input id= "logout_name" name = "logout_name" style="display: none;"></input>
 		<input id= "logout_type" name = "logout_type" style="display: none;"></input>
-		<button type="submit" onclick = "logout()">退出</button>
+		<button class="btn btn-default" type="submit" onclick = "logout()" style="margin-right: 15px">退出</button>
 		</form>
 		
 		</div>
 
 
 		<div style="float: left;">
-            <input id="emoji" type="button" value="emoji" title="emoji" />
-            <div id="emojiWrapper"></div>
-            <button   onclick = "sendemerg()" id= "sendemerg">紧急呼叫</button>
-            <label for="sendImage" class="imageLable">
+            <input style="margin-right: 15px" class="btn btn-default" id="emoji" type="button" value="emoji" title="emoji" />
+            <button class="btn btn-primary" style="margin-right: 15px" onclick = "sendemerg()" id= "sendemerg">紧急呼叫</button>
+            <label for="sendImage" class="imageLable" style="margin-right: 15px">
 				<input id="sendImage" type="file" value="image"/>
 			</label>
         </div>
+
+        <div id="emojiWrapper"></div>
        <!--  <div id="container" class="container">
         	<% if (locals.success) { %>        
         	<div id="alt_sucess" class="alert alert-success">

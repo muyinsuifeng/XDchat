@@ -171,9 +171,9 @@ router.route('/register')
   		}
   		else{newUser.save(function (err, user) {
     		//相关操作，写入session
-    	
+    	console.log("/register_save");
     		req.session.error='注册成功';
-    		res.send(user);
+    		//res.send(user);
     		res.redirect('/register');
 
   			});
@@ -347,14 +347,20 @@ router.route('/singlechat')
 
 // });
 
- 
+router.route('/history_message')
+.get(function(req,res){
+  res.render('history_message', { title: "history_message"});
+})
+
+
+var newPath;
+var path = require('path');
+var mime = require('mime');
 router.route('/filesendopen')
 .get( function(req, res) {
-    res.render('filesendopen', { title: "newPath"});
+    res.render('filesendopen', { title: "newPath",path: newPath});
 })
 .post(function(req, res) {
-  var avatarName = Math.random() + '.' + extName;
-    var newPath = form.uploadDir + avatarName;
   var form = new formidable.IncomingForm();   //创建上传表单
     form.encoding = 'utf-8';    //设置编辑
     form.uploadDir = 'public' + AVATAR_UPLOAD_FOLDER;  //设置上传目录
@@ -365,10 +371,11 @@ router.route('/filesendopen')
 
     if (err) {
       res.locals.error = err;
-      res.render('filesendopen', { title: newPath});
+      res.render('filesendopen', { title: TITLE,path:"newPath" });
       return;   
     }  
-     
+    console.log("files.fulAvatar.type",files.fulAvatar.type);
+  //var extName = mime.lookup(files);
     var extName = '';  //后缀名
     switch (files.fulAvatar.type) {
       case 'image/pjpeg':
@@ -382,25 +389,81 @@ router.route('/filesendopen')
         break;
       case 'image/x-png':
         extName = 'png';
-        break;     
+        break; 
+      case 'text/plain':
+         extName = 'txt';
+         break;
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+         extName = 'docx';
+         break;
+      case 'textml':
+         extName = 'html';
+         break;
+      case 'application/x-zip-compressed':
+          extName = 'zip';
+          break;
+      case 'application/octet-stream':
+          extName = 'rar';
+          break;
+      case 'application/x-rar-compressed':
+          extName = 'rar';
+          break;
+      case 'application/msword':
+          extName = 'doc';
+          break;
+      case 'applicationf':
+          extName = 'pdf';
+          break;
+      case 'image/gif':
+          extName = 'gif';
+          break; 
+      case 'applicationnd.openxmlformats-officedocument.spreadsheetml.sheet':
+          extName = 'xls';
+          break;
+      default:
+          extName.length = 0;
+   
     }
 
     if(extName.length == 0){
         res.locals.error = '只支持png和jpg格式图片';
-        res.render('filesendopen', { title: newPath });
+        res.render('filesendopen', { title: TITLE,path: "newPath" });
         return;          
     }
 
-    
+    var avatarName = Math.random() + '.' + extName;
+    newPath = form.uploadDir + avatarName;
 
     console.log(newPath);
     fs.renameSync(files.fulAvatar.path, newPath);  //重命名
+    //console.log("4");
+     //console.log("3");
+    res.locals.success = '上传成功';
+
+    //console.log("2");
+    res.render('filesendopen', { title: TITLE
+                              ,path: newPath });  
+
+    //console.log("1");
   });
 
-  res.locals.success = '上传成功';
-  res.render('filesendopen', { title: newPath });
-
+   
 });
+
+router.route('/download').get(function(req, res){
+  var file =  'C:/Users/guoming/Desktop/GraduationProject/Project/GeeChat-demo/XDChat/'+newPath;
+
+  var filename = path.basename(file);
+  var mimetype = mime.lookup(file);
+
+  res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+  res.setHeader('Content-type', mimetype);
+
+  var filestream = fs.createReadStream(file);
+  filestream.pipe(res);
+});
+
+
 
 
 function authentication(req, res) {

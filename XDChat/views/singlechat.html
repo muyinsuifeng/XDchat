@@ -11,6 +11,7 @@
   }
 </style>
 -->
+<link rel="stylesheet" type="text/css" href="./stylesheets/bootstrap.min.css">
 <style type="text/css">
 		#historyMsg {
 			border: solid;
@@ -31,25 +32,26 @@
 <div id="historyMsg"></div>
 <div>
 	<input  style="float: left;" input type="text"  id ='message' name="message" placeholder="请输入消息" required></input>
-<button style="float: left;" type = "submit" id = 'sendBtn' onclick= "sendMeg()">发送</button>
-<button style="float: left;"  id = 'filesend' onclick= "openfilesend()">文件传输</button>
+<button class="btn btn-primary" style="float: left;" type = "submit" id = 'sendBtn' onclick= "sendMeg()" style="margin-right: 15px">发送</button>
+<button class="btn btn-primary" style="float: left;"  id = 'filesend' onclick= "openfilesend()" style="margin-right: 15px">文件传输</button>
 <div style="float: left;">
-	<input id="emoji" type="button" value="emoji" title="emoji" />
+	<input style="margin-right: 15px" class="btn btn-primary" id="emoji" type="button" value="emoji" title="emoji" />
 	<div id="emojiWrapper"></div>
 
 </div>
-<button  id = 'logout' onclick= "singlechatexit()">退出</button>
-
+<button class="btn btn-primary" style="float: left;" id = 'logout' onclick= "singlechatexit()" style="margin-right: 15px">退出</button>
+<button   class="btn btn-primary" onclick= "history_message()" style="margin-right: 15px">历史记录</button>
+<!-- 
 <div>
-	<!-- <input type="file" id="files" name="files[]" multiple />
+	 <input type="file" id="files" name="files[]" multiple />
 	<output id="list"></output>
 
 	<button id="send_files" onclick="send_files()">发送文件</button>
-	-->
+	
 	<label for="sendImage" class="imageLable">
 		<input id="sendImage" type="file" value="image"/>
 	</label>
-</div>
+</div> -->
 </div>
 <!-- <div id="container" class="container">
 	<% if (locals.success) { %>
@@ -70,16 +72,16 @@
 	</form>
 
 </div> -->
-<div>
+<div style="float: left;">
 	<video id="video" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
-	<video id="remotevideo" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
+	<button  class="btn btn-primary" type="button" onclick="startVideo1();" style="margin-right: 15px">开启视频</button>
+	<button class="btn btn-primary" type="button" onclick="stopVideo();" style="margin-right: 15px">暂停视频</button>
 
 </div>
-<div>
-	<button type="button" onclick="startVideo();">开启视频</button>
-	<button type="button" onclick="stopVideo();">暂停视频</button>
-	<button type="button" onclick="connect();" style="margin-left: 200px">连接</button>
-	<button type="button" onclick="hangUp();">断开</button>
+<div style="float: left;">
+	<video id="remotevideo" autoplay style="width: 300px; height: 240px; border: 1px solid black;" controls></video>
+	<button class="btn btn-primary" type="button" onclick="connect();" style="margin-right: 15px">连接</button>
+	<button class="btn btn-primary" type="button" onclick="hangUp();" style="margin-right: 15px">断开</button>
 </div>
 <script src="./javascripts/singlechat.js"></script>
 </body>

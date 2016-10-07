@@ -90,7 +90,6 @@ function singlechatexit(){
 }
 
 
-
 //-----------vedio----------
   var sourcevid = document.getElementById('video');
   var remotevid = document.getElementById('remotevideo');
@@ -130,8 +129,37 @@ function singlechatexit(){
           console.error('An error occurred: [CODE ' + error.code + ']');
           return;
       }
-  }
 
+  }
+function startVideo1() {
+      socket.emit("singlechat_room",{});
+
+
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mediaDevices.getUserMedia || navigator.msGetUserMedia;
+      window.URL = window.URL || window.webkitURL;
+
+      navigator.getUserMedia({video: true, audio: true}, successCallback, errorCallback);
+      function successCallback(stream) {
+          localStream = stream;
+          if (sourcevid.mozSrcObject) {
+            sourcevid.mozSrcObject = stream;
+            sourcevid.play();
+          } else {
+            try {
+              sourcevid.src = window.URL.createObjectURL(stream);
+              sourcevid.play();
+            } catch(e) {
+              console.log("Error setting video src: ", e);
+            }
+          }
+          stop();
+          connect();
+      }
+      function errorCallback(error) {
+          console.error('An error occurred: [CODE ' + error.code + ']');
+          return;
+      }
+  }
   // stop local video
   function stopVideo() {
     if (sourcevid.mozSrcObject) {
@@ -141,6 +169,7 @@ function singlechatexit(){
       sourcevid.src = "";
       localStream.stop();
     }
+    stop();
   }
 
   // send SDP via socket connection
@@ -429,60 +458,60 @@ this.initialEmoji();
     };
 }, false);
  //-----------images-----------------
- var reader = new FileReader();
- document.getElementById('sendImage').addEventListener('change', handleFileSelect, false);
-  function handleFileSelect(evt) {
-    console.log("reader_init:"+reader.result+" ");
-    var files = evt.target.files; // FileList object
-    console.log("typeof(reader):"+typeof(reader));
-    // Loop through the FileList and render image files as thumbnails.
-    for (var i = 0, f; f = files[i]; i++) {
+//  var reader = new FileReader();
+//  document.getElementById('sendImage').addEventListener('change', handleFileSelect, false);
+//   function handleFileSelect(evt) {
+//     console.log("reader_init:"+reader.result+" ");
+//     var files = evt.target.files; // FileList object
+//     console.log("typeof(reader):"+typeof(reader));
+//     // Loop through the FileList and render image files as thumbnails.
+//     for (var i = 0, f; f = files[i]; i++) {
         
-      // Only process image files.
-      // if (!f.type.match('image.*')) {
-      //   continue;
-      // }
+//       // Only process image files.
+//       // if (!f.type.match('image.*')) {
+//       //   continue;
+//       // }
 
-        reader.onerror = (function(){
-            console.log("readfile_error");
-        });
-      //Closure to capture the file information.
-        reader.onload = (function() {
-           return function(e) {
-             // Render thumbnail.
-            console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
-//          socket.emit('files',{
-//                          from: singlechat_from,
-//                          files: e.target.result});
-//           var span = document.createElement('span');
-//           span.innerHTML = ['<img class="thumb" src="', e.target.result,
-//                             '" title="', escape(theFile.name), '"/>'].join('');
-//           document.getElementById('list').insertBefore(span, null);
-                socket.emit('singlechatimg', {
-                                    from:singlechat_from,
-                                    result:e.target.result});
-           };
-         })(f);
+//         reader.onerror = (function(){
+//             console.log("readfile_error");
+//         });
+//       //Closure to capture the file information.
+//         reader.onload = (function() {
+//            return function(e) {
+//              // Render thumbnail.
+//             console.log("reader_after_read_onload:" + "{reader.result:" + reader.result + "\n reader.readyState:" + reader.readyState + "}");
+// //          socket.emit('files',{
+// //                          from: singlechat_from,
+// //                          files: e.target.result});
+// //           var span = document.createElement('span');
+// //           span.innerHTML = ['<img class="thumb" src="', e.target.result,
+// //                             '" title="', escape(theFile.name), '"/>'].join('');
+// //           document.getElementById('list').insertBefore(span, null);
+//                 socket.emit('singlechatimg', {
+//                                     from:singlechat_from,
+//                                     result:e.target.result});
+//            };
+//          })(f);
 
-      // Read in the image file as a data URL.
-      //reader.readAsText(f);
-      reader.readAsDataURL(f);
-      console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
-    }
+//       // Read in the image file as a data URL.
+//       //reader.readAsText(f);
+//       reader.readAsDataURL(f);
+//       console.log("reader_after_read_readasdataurl:"+"{reader.result:"+reader.result+"\n reader.readyState:"+reader.readyState+"}");
+//     }
 
-  }
-  function displayImage(user, imgData){
-    var container = document.getElementById('historyMsg'),
-        msgToDisplay = document.createElement('p'),
-        date = new Date().toTimeString().substr(0, 8);
-    msgToDisplay.innerHTML = user + '<span class="timespan">(' + date + '): </span> <br/>' + '<a href="' + imgData + '" target="_blank"><img src="' + imgData + '"/></a>';
-    container.appendChild(msgToDisplay);
-    container.scrollTop = container.scrollHeight;
-}
-socket.on('singlechatimg',function(data){
-    console.log(data.data.result);
-    displayImage(data.data.from,data.data.result);
-})
+//   }
+//   function displayImage(user, imgData){
+//     var container = document.getElementById('historyMsg'),
+//         msgToDisplay = document.createElement('p'),
+//         date = new Date().toTimeString().substr(0, 8);
+//     msgToDisplay.innerHTML = user + '<span class="timespan">(' + date + '): </span> <br/>' + '<a href="' + imgData + '" target="_blank"><img src="' + imgData + '"/></a>';
+//     container.appendChild(msgToDisplay);
+//     container.scrollTop = container.scrollHeight;
+// }
+// socket.on('singlechatimg',function(data){
+//     console.log(data.data.result);
+//     displayImage(data.data.from,data.data.result);
+// })
 
 //---------------------file upload--------------
 // String.prototype.format = function (args) {
@@ -549,9 +578,19 @@ socket.on('filesendopen_req',function(data){
 socket.on('filesendopen',function(data){
     console.log("filesendopen",data.to,data.from);
         if(data.from === singlechat_from||data.to === singlechat_from){
-            if(data.from === singlechat_from)
-             window.open('filesendopen',singlechat_from+"/filesendopen/"+singlechat_to);
-            else 
-               window.open('filesendopen',singlechat_to+"/filesendopen/"+singlechat_from);
+            if(data.from === singlechat_from){
+              console.log("filesendopen",data.from);
+              window.open('filesendopen',data.from+"/filesendopen/"+data.to);
+            }
+            else {
+              console.log("filesendopen",data.to);
+              window.open('filesendopen',data.to+"/filesendopen/"+data.from);
+            }
         }
   });
+
+//----------------history_message------
+
+function history_message(){
+  window.open('history_message',singlechat_from+"/history_message/"+singlechat_to);
+}
